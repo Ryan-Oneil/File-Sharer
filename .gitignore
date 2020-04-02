@@ -1,0 +1,5 @@
+
+backend/.idea/*
+backend/src/main/java/biz/oneilindustries/website/config/*
+frontend/.idea/*
+frontend/node_modules/*

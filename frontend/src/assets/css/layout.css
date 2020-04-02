@@ -1,0 +1,85 @@
+@import '~antd/dist/antd.css';
+
+html, body {
+    background-color: #f0f2f5;
+}
+
+.login-form {
+    padding-top: 5%;
+}
+.form-button {
+    width: 100%;
+    margin-bottom: 24px;
+}
+.trigger {
+    font-size: 18px;
+    line-height: 64px;
+    padding: 0 24px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+.iconHeader {
+    padding: 0 40px 0 0;
+    background: #fff
+}
+.right {
+    float: right;
+    margin-left: auto;
+    overflow: hidden;
+}
+
+.avatar {
+    margin-right: 8px;
+    /*background: rgba(255, 255, 255, 0.85);*/
+}
+.userDropdown {
+    display: inline-block;
+    height: 100%;
+    padding: 0 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.userDropdown:hover {
+    background: rgba(0,0,0,.025);
+}
+
+.logo {
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 16px;
+}
+.mainContent {
+    overflow: auto;
+    height: 100vh;
+    left: 0;
+    padding: 24px;
+}
+.dashedSelect {
+    height: 100%;
+}
+.selectButton {
+    width: 100%;
+    height: 100%;
+    color: rgba(0,0,0,.45);
+    background-color: #fff;
+    border-color: #d9d9d9;
+    border-style: dashed;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.selectButton:hover, .selectButton:focus {
+    color: #40a9ff;
+    background-color: #fff;
+    border-color: #40a9ff;
+}
+.inputField {
+    margin-bottom: 24px;
+}
+
+.actions button {
+    margin-bottom: 5px;
+}
+.login {
+    width: 20%;
+    margin: auto;
+}
