@@ -5,6 +5,7 @@ import "../assets/css/layout.css";
 import DashboardRouting from "../pages/Dashboard/DashboardRouting";
 import PrivateRoute from "./PrivateRoute";
 import Login from "../pages/Login";
+import SharedLinkPage from "../pages/FileShare/SharedLinkPage";
 
 class ClientApp extends React.Component {
   render() {
@@ -12,6 +13,7 @@ class ClientApp extends React.Component {
       <BrowserRouter>
         <Switch>
           <Route exact path="/" component={Login} />
+          <Route path="/shared/:id" component={SharedLinkPage} />
           <PrivateRoute path="/dashboard">
             <Route path="/dashboard" component={DashboardRouting} />
           </PrivateRoute>

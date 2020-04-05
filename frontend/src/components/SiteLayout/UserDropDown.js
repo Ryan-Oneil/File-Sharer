@@ -12,10 +12,6 @@ const dropdown = props => {
         <Icon type="user" />
         Account
       </Menu.Item>
-      <Menu.Item key="settings">
-        <Icon type="setting" />
-        Settings
-      </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="logout">
         <Icon type="logout" />
