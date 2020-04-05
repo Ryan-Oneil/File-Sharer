@@ -4,6 +4,14 @@ import { ErrorDisplay, InputWithErrors } from "./index";
 import { Button, Card, DatePicker } from "antd";
 
 export default props => {
+  const {
+    initialValues = {
+      title: "",
+      expires: "",
+      password: ""
+    }
+  } = props;
+
   const onSubmit = values => {
     console.log(values);
   };
@@ -11,11 +19,7 @@ export default props => {
   return (
     <Card>
       <Formik
-        initialValues={{
-          title: "",
-          expires: "",
-          password: ""
-        }}
+        initialValues={initialValues}
         onSubmit={onSubmit}
         validate={validate}
         validateOnMount
@@ -67,7 +71,7 @@ export default props => {
                 disabled={!isValid || isSubmitting}
                 style={{ marginTop: 24 }}
               >
-                Share
+                Confirm
               </Button>
             </form>
           );
