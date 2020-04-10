@@ -8,7 +8,6 @@ import {
   RESET_PASSWORD_SENT
 } from "./types";
 import { apiPostCall, BASE_URL } from "../apis/api";
-import { SubmissionError } from "redux-form";
 
 const requestLogin = creds => {
   return {
@@ -51,17 +50,9 @@ export const loginUser = creds => dispatch => {
 };
 
 export const registerUser = creds => dispatch => {
-  return apiPostCall(BASE_URL + "/auth/register", creds)
-    .then(response => {
-      dispatch({ type: REGISTER_SUCCESS, message: response.data });
-    })
-    .catch(error => {
-      if (error.response) {
-        throw new SubmissionError({ _error: error.response.data });
-      } else {
-        throw new SubmissionError({ _error: error.message });
-      }
-    });
+  return apiPostCall(BASE_URL + "/auth/register", creds).then(response => {
+    dispatch({ type: REGISTER_SUCCESS, message: response.data });
+  });
 };
 
 export const logoutUser = () => {
@@ -74,17 +65,11 @@ export const logoutUser = () => {
 };
 
 export const resetPassword = email => dispatch => {
-  return apiPostCall(BASE_URL + "/auth/forgotPassword/" + email)
-    .then(response => {
+  return apiPostCall(BASE_URL + "/auth/forgotPassword/" + email).then(
+    response => {
       dispatch({ type: RESET_PASSWORD_SENT, message: response.data });
-    })
-    .catch(error => {
-      if (error.response) {
-        throw new SubmissionError({ _error: error.response.data });
-      } else {
-        throw new SubmissionError({ _error: error.message });
-      }
-    });
+    }
+  );
 };
 
 export const changePassword = (token, password) => dispatch => {
@@ -92,17 +77,13 @@ export const changePassword = (token, password) => dispatch => {
     params: { password: password }
   };
 
-  return apiPostCall(BASE_URL + "/auth/newPassword/" + token, null, options)
-    .then(response => {
-      dispatch({ type: NEW_PASSWORD_SENT, message: response.data });
-    })
-    .catch(error => {
-      if (error.response) {
-        throw new SubmissionError({ _error: error.response.data });
-      } else {
-        throw new SubmissionError({ _error: error.message });
-      }
-    });
+  return apiPostCall(
+    BASE_URL + "/auth/newPassword/" + token,
+    null,
+    options
+  ).then(response => {
+    dispatch({ type: NEW_PASSWORD_SENT, message: response.data });
+  });
 };
 
 export const isTokenExpired = token => {

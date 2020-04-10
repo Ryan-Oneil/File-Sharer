@@ -2,19 +2,15 @@ import React from "react";
 import { Field, Formik } from "formik";
 import { InputWithErrors } from "./index";
 import { Alert, Button } from "antd";
-import { loginUser } from "../../actions";
+import { resetPassword } from "../../actions";
 import { connect } from "react-redux";
 import { getApiError } from "../../helpers";
-import Icon from "antd/lib/icon";
-import { Link } from "react-router-dom";
 
-const LoginForm = props => {
+import MailOutlined from "@ant-design/icons/lib/icons/MailOutlined";
+
+const EmailForm = props => {
   const onSubmit = (formValues, { setStatus }) => {
-    const creds = {
-      username: formValues.username.trim(),
-      password: formValues.password.trim()
-    };
-    return props.loginUser(creds).catch(error => {
+    return props.resetPassword(formValues.email.trim()).catch(error => {
       setStatus(getApiError(error));
     });
   };
@@ -22,8 +18,7 @@ const LoginForm = props => {
   return (
     <Formik
       initialValues={{
-        username: "",
-        password: ""
+        email: ""
       }}
       onSubmit={onSubmit}
       validate={validate}
@@ -39,26 +34,15 @@ const LoginForm = props => {
         } = props;
 
         return (
-          <form onSubmit={handleSubmit} className="login-form">
+          <form onSubmit={handleSubmit}>
             <Field
-              name="username"
+              name="email"
               as={InputWithErrors}
-              type="text"
-              placeholder="Username"
-              prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
-              error={errors.username}
+              type="email"
+              placeholder="Email"
+              prefix={<MailOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
+              error={errors.email}
             />
-            <Field
-              name="password"
-              as={InputWithErrors}
-              type="password"
-              placeholder="Password"
-              prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
-              error={errors.password}
-            />
-            <Link to="/resetPassword" style={{ float: "right" }}>
-              Forgot Password?
-            </Link>
             <Button
               type="primary"
               htmlType="submit"
@@ -66,11 +50,11 @@ const LoginForm = props => {
               disabled={!isValid || isSubmitting}
               size="large"
             >
-              Login
+              Confirm
             </Button>
             {status && (
               <Alert
-                message="Login Error"
+                message="Email Error"
                 description={status}
                 type="error"
                 closable
@@ -88,12 +72,9 @@ const LoginForm = props => {
 const validate = values => {
   const errors = {};
 
-  if (!values.username) {
-    errors.username = "Username is required";
-  }
-  if (!values.password) {
-    errors.password = "Password is required";
+  if (!values.email) {
+    errors.email = "Email is required";
   }
   return errors;
 };
-export default connect(null, { loginUser })(LoginForm);
+export default connect(null, { resetPassword })(EmailForm);

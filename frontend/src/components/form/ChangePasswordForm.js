@@ -1,20 +1,15 @@
 import React from "react";
+import { getApiError } from "../../helpers";
 import { Field, Formik } from "formik";
 import { InputWithErrors } from "./index";
 import { Alert, Button } from "antd";
-import { loginUser } from "../../actions";
 import { connect } from "react-redux";
-import { getApiError } from "../../helpers";
-import Icon from "antd/lib/icon";
-import { Link } from "react-router-dom";
+import { changePassword } from "../../actions";
+import LockOutlined from "@ant-design/icons/lib/icons/LockOutlined";
 
-const LoginForm = props => {
+const ChangePasswordForm = props => {
   const onSubmit = (formValues, { setStatus }) => {
-    const creds = {
-      username: formValues.username.trim(),
-      password: formValues.password.trim()
-    };
-    return props.loginUser(creds).catch(error => {
+    return props.changePassword(formValues.password.trim()).catch(error => {
       setStatus(getApiError(error));
     });
   };
@@ -22,7 +17,6 @@ const LoginForm = props => {
   return (
     <Formik
       initialValues={{
-        username: "",
         password: ""
       }}
       onSubmit={onSubmit}
@@ -39,26 +33,15 @@ const LoginForm = props => {
         } = props;
 
         return (
-          <form onSubmit={handleSubmit} className="login-form">
-            <Field
-              name="username"
-              as={InputWithErrors}
-              type="text"
-              placeholder="Username"
-              prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
-              error={errors.username}
-            />
+          <form onSubmit={handleSubmit}>
             <Field
               name="password"
               as={InputWithErrors}
               type="password"
               placeholder="Password"
-              prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+              prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
               error={errors.password}
             />
-            <Link to="/resetPassword" style={{ float: "right" }}>
-              Forgot Password?
-            </Link>
             <Button
               type="primary"
               htmlType="submit"
@@ -66,11 +49,11 @@ const LoginForm = props => {
               disabled={!isValid || isSubmitting}
               size="large"
             >
-              Login
+              Change Password
             </Button>
             {status && (
               <Alert
-                message="Login Error"
+                message="Change password Error"
                 description={status}
                 type="error"
                 closable
@@ -88,12 +71,9 @@ const LoginForm = props => {
 const validate = values => {
   const errors = {};
 
-  if (!values.username) {
-    errors.username = "Username is required";
-  }
   if (!values.password) {
     errors.password = "Password is required";
   }
   return errors;
 };
-export default connect(null, { loginUser })(LoginForm);
+export default connect(null, { changePassword })(ChangePasswordForm);

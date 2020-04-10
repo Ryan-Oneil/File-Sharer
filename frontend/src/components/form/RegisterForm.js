@@ -2,19 +2,21 @@ import React from "react";
 import { Field, Formik } from "formik";
 import { InputWithErrors } from "./index";
 import { Alert, Button } from "antd";
-import { loginUser } from "../../actions";
+import { registerUser } from "../../actions";
 import { connect } from "react-redux";
 import { getApiError } from "../../helpers";
-import Icon from "antd/lib/icon";
-import { Link } from "react-router-dom";
+import MailOutlined from "@ant-design/icons/lib/icons/MailOutlined";
+import LockOutlined from "@ant-design/icons/lib/icons/LockOutlined";
+import UserOutlined from "@ant-design/icons/lib/icons/UserOutlined";
 
-const LoginForm = props => {
+const RegisterForm = props => {
   const onSubmit = (formValues, { setStatus }) => {
     const creds = {
       username: formValues.username.trim(),
-      password: formValues.password.trim()
+      password: formValues.password.trim(),
+      email: formValues.email.trim()
     };
-    return props.loginUser(creds).catch(error => {
+    return props.registerUser(creds).catch(error => {
       setStatus(getApiError(error));
     });
   };
@@ -23,7 +25,9 @@ const LoginForm = props => {
     <Formik
       initialValues={{
         username: "",
-        password: ""
+        password: "",
+        confirmPassword: "",
+        email: ""
       }}
       onSubmit={onSubmit}
       validate={validate}
@@ -45,7 +49,7 @@ const LoginForm = props => {
               as={InputWithErrors}
               type="text"
               placeholder="Username"
-              prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+              prefix={<UserOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
               error={errors.username}
             />
             <Field
@@ -53,12 +57,25 @@ const LoginForm = props => {
               as={InputWithErrors}
               type="password"
               placeholder="Password"
-              prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+              prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
               error={errors.password}
             />
-            <Link to="/resetPassword" style={{ float: "right" }}>
-              Forgot Password?
-            </Link>
+            <Field
+              name="confirmPassword"
+              as={InputWithErrors}
+              type="password"
+              placeholder="Confirm Password"
+              prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
+              error={errors.confirmPassword}
+            />
+            <Field
+              name="email"
+              as={InputWithErrors}
+              type="email"
+              placeholder="Email"
+              prefix={<MailOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
+              error={errors.email}
+            />
             <Button
               type="primary"
               htmlType="submit"
@@ -66,11 +83,11 @@ const LoginForm = props => {
               disabled={!isValid || isSubmitting}
               size="large"
             >
-              Login
+              Register
             </Button>
             {status && (
               <Alert
-                message="Login Error"
+                message="Register Error"
                 description={status}
                 type="error"
                 closable
@@ -94,6 +111,12 @@ const validate = values => {
   if (!values.password) {
     errors.password = "Password is required";
   }
+  if (values.password !== values.confirmPassword) {
+    errors.confirmPassword = "Passwords don't match";
+  }
+  if (!values.email) {
+    errors.email = "Email is required";
+  }
   return errors;
 };
-export default connect(null, { loginUser })(LoginForm);
+export default connect(null, { registerUser })(RegisterForm);
