@@ -1,21 +1,9 @@
 import React from "react";
-import {
-  Avatar,
-  Button,
-  Card,
-  Col,
-  Layout,
-  List,
-  Row,
-  Statistic,
-  Tooltip
-} from "antd";
+import { Avatar, Button, Card, Col, List, Row, Statistic, Tooltip } from "antd";
 import { displayBytesInReadableForm } from "../../helpers";
 import DownloadOutlined from "@ant-design/icons/lib/icons/DownloadOutlined";
 
 export default props => {
-  console.log(props);
-
   const { id } = props.match.params;
 
   const sampleData = [

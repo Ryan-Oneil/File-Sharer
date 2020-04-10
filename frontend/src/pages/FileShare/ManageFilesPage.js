@@ -6,61 +6,26 @@ import { displayBytesInReadableForm } from "../../helpers";
 import EyeOutlined from "@ant-design/icons/lib/icons/EyeOutlined";
 import DownloadOutlined from "@ant-design/icons/lib/icons/DownloadOutlined";
 import ShareLinkForm from "../../components/form/ShareLinkForm";
+import { Link } from "react-router-dom";
+import { connect } from "react-redux";
 const { TabPane } = Tabs;
 
-export default props => {
+const ManageFilePage = props => {
   const [editLink, setEditLink] = useState("");
-
-  const sampleData = [
-    {
-      title: "Link 1",
-      views: "27",
-      size: "2390994",
-      id: "adw23",
-      password: "test"
-    },
-    {
-      title: "Link 2",
-      views: "5",
-      size: "54321",
-      id: "wa1"
-    },
-    {
-      title: "Link 3",
-      views: "66",
-      size: "234390994",
-      id: "dwaf3"
-    },
-    {
-      title: "Link 4",
-      views: "85",
-      size: "23920994",
-      id: "sdfe"
-    },
-    {
-      title: "Link 5",
-      views: "12",
-      size: "2390912394",
-      id: "tyrr"
-    }
-  ];
+  const { activeFiles, expiredFiles } = props.fileSharer;
 
   const activeLinkList = () => {
     return (
       <List
         pagination
-        dataSource={sampleData}
+        dataSource={activeFiles}
         renderItem={item => (
           <List.Item
             actions={[
               <Tooltip title="View">
-                <Button
-                  shape="circle"
-                  icon={<EyeOutlined />}
-                  onClick={() => {
-                    window.open("https://www.google.com", "_blank");
-                  }}
-                />
+                <Link to={`/shared/${item.id}`}>
+                  <Button shape="circle" icon={<EyeOutlined />} />
+                </Link>
               </Tooltip>,
               <Tooltip title="Download">
                 <Button
@@ -105,7 +70,7 @@ export default props => {
     return (
       <List
         pagination
-        dataSource={sampleData}
+        dataSource={expiredFiles}
         renderItem={item => (
           <List.Item>
             <List.Item.Meta
@@ -152,3 +117,7 @@ export default props => {
     </>
   );
 };
+const mapStateToProps = state => {
+  return { fileSharer: state.fileSharer };
+};
+export default connect(mapStateToProps)(ManageFilePage);

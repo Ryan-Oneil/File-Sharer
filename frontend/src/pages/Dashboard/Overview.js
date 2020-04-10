@@ -4,45 +4,43 @@ import { Avatar, Col, List, Row } from "antd";
 
 import StatisticCard from "../../components/Stats/StatisticCard";
 import ListCard from "../../components/Stats/ListCard";
+import { displayBytesInReadableForm } from "../../helpers";
 
 const Overview = props => {
-  const data = [
-    {
-      title: "Hello.jpg",
-      views: 60
-    },
-    {
-      title: "Tom.png",
-      views: 200
-    }
-  ];
+  const {
+    totalViews,
+    totalShared,
+    mostViewed,
+    recentShared
+  } = props.user.fileShareStats;
+
+  const { used, max } = props.user.storageQuota;
 
   return (
     <>
       <Row gutter={[32, 32]} type="flex">
-        <Col span={6}>
-          <StatisticCard title="Total Shared Files" value={200} />
+        <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+          <StatisticCard title="Total Shared Files" value={totalShared} />
         </Col>
-        <Col span={6}>
-          <StatisticCard title="Used Storage Space" value={200} suffix="GB" />
-        </Col>
-        <Col span={6}>
+        <Col xs={24} sm={24} md={6} lg={6} xl={6}>
           <StatisticCard
-            title="Remaing Storage Space"
-            value={200}
-            suffix="GB"
+            title="Used Storage Space"
+            value={displayBytesInReadableForm(used)}
           />
         </Col>
-        <Col span={6}>
-          <StatisticCard title="Total Views" value={3000} />
+        <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+          <StatisticCard title="Total Storage Space" value={max} suffix="GB" />
+        </Col>
+        <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+          <StatisticCard title="Total Views" value={totalViews} />
         </Col>
       </Row>
       <Row gutter={[32, 32]} type="flex">
-        <Col span={12}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
           <ListCard
             title="Most Viewed Files"
             itemLayout="horizontal"
-            dataSource={data}
+            dataSource={mostViewed}
             renderItem={item => (
               <List.Item>
                 <List.Item.Meta
@@ -59,11 +57,11 @@ const Overview = props => {
             )}
           />
         </Col>
-        <Col span={12}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
           <ListCard
             title="Recent Files"
             itemLayout="horizontal"
-            dataSource={data}
+            dataSource={recentShared}
             renderItem={item => (
               <List.Item>
                 <List.Item.Meta
@@ -85,6 +83,6 @@ const Overview = props => {
   );
 };
 const mapStateToProps = state => {
-  return { teamspeak: state.teamspeak };
+  return { user: state.user };
 };
 export default connect(mapStateToProps)(Overview);

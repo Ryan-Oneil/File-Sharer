@@ -8,6 +8,7 @@ import DashboardOutlined from "@ant-design/icons/lib/icons/DashboardOutlined";
 const SideNav = ({ path, location }) => {
   return (
     <div>
+      <div className="appName">File Sharer</div>
       <Menu
         theme="dark"
         mode="inline"
@@ -17,19 +18,19 @@ const SideNav = ({ path, location }) => {
         <Menu.Item key="/dashboard">
           <NavLink to={path} exact>
             <DashboardOutlined />
-            <span>Overview</span>
+            Overview
           </NavLink>
         </Menu.Item>
         <Menu.Item key={`${path}/share`}>
           <NavLink to={`${path}/share`} exact>
             <ShareAltOutlined />
-            <span>Share File</span>
+            Share File
           </NavLink>
         </Menu.Item>
         <Menu.Item key={`${path}/files`}>
           <NavLink to={`${path}/files`} exact>
             <FileOutlined />
-            <span>Files</span>
+            Files
           </NavLink>
         </Menu.Item>
       </Menu>

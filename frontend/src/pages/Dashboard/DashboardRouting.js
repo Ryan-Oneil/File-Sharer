@@ -4,37 +4,24 @@ import PrivateRoute from "../../components/PrivateRoute";
 import { connect } from "react-redux";
 import SideNav from "../../components/SiteLayout/SideNav";
 import { Layout } from "antd";
-import UserDropDown from "../../components/SiteLayout/UserDropDown";
 import Overview from "./Overview";
 import UploadPage from "../FileShare/UploadPage";
-import Icon from "antd/lib/icon";
 import ManageFilesPage from "../FileShare/ManageFilesPage";
+import NavHeader from "../../components/SiteLayout/Header";
+import Profile from "../Profile";
 
-class ProfileRouting extends React.Component {
-  state = { collapsed: false };
-
-  toggle = () => {
-    this.setState({ collapsed: !this.state.collapsed });
-  };
-
+class DashboardRouting extends React.Component {
   render() {
     const { match } = this.props;
-    const { Header, Sider, Content } = Layout;
+    const { Sider, Content } = Layout;
 
     return (
       <Layout style={{ height: "100vh" }}>
-        <Sider trigger={null} collapsible collapsed={this.state.collapsed}>
+        <Sider breakpoint="lg" collapsedWidth="0">
           <SideNav path={match.path} />
         </Sider>
         <Layout>
-          <Header className="iconHeader">
-            <Icon
-              className="trigger"
-              type={this.state.collapsed ? "menu-unfold" : "menu-fold"}
-              onClick={this.toggle}
-            />
-            <UserDropDown />
-          </Header>
+          <NavHeader />
           <Content className="mainContent">
             <Switch>
               <PrivateRoute>
@@ -49,6 +36,11 @@ class ProfileRouting extends React.Component {
                   path={`${match.path}/files`}
                   component={ManageFilesPage}
                 />
+                <Route
+                  exact
+                  path={`${match.path}/profile`}
+                  component={Profile}
+                />
               </PrivateRoute>
             </Switch>
           </Content>
@@ -60,4 +52,4 @@ class ProfileRouting extends React.Component {
 const mapStateToProps = state => {
   return { auth: state.auth };
 };
-export default connect(mapStateToProps)(ProfileRouting);
+export default connect(mapStateToProps)(DashboardRouting);

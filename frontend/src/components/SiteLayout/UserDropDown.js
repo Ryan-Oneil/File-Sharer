@@ -1,7 +1,10 @@
 import React from "react";
-import { Avatar, Dropdown, Menu, Spin } from "antd";
+import { Avatar, Dropdown, Menu } from "antd";
 import { connect } from "react-redux";
-import Icon from "antd/lib/icon";
+import UserOutlined from "@ant-design/icons/lib/icons/UserOutlined";
+import LogoutOutlined from "@ant-design/icons/lib/icons/LogoutOutlined";
+import { Link } from "react-router-dom";
+import { logoutUser } from "../../actions";
 
 const dropdown = props => {
   const { user } = props.auth;
@@ -9,18 +12,20 @@ const dropdown = props => {
   const menuHeaderDropdown = (
     <Menu selectedKeys={[]} onClick={null}>
       <Menu.Item key="center">
-        <Icon type="user" />
-        Account
+        <Link to="/dashboard/profile">
+          <UserOutlined />
+          Account
+        </Link>
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="logout">
-        <Icon type="logout" />
+      <Menu.Item key="logout" onClick={() => props.logoutUser()}>
+        <LogoutOutlined />
         Logout
       </Menu.Item>
     </Menu>
   );
 
-  return user && user.name ? (
+  return (
     <Dropdown overlay={menuHeaderDropdown}>
       <span className="right userDropdown">
         <Avatar
@@ -29,11 +34,9 @@ const dropdown = props => {
           src={user.avatar}
           alt="avatar"
         />
-        <span>{user.name}</span>
+        <span className="username">{user.name}</span>
       </span>
     </Dropdown>
-  ) : (
-    <Spin size="small" style={{ marginLeft: 8, marginRight: 8 }} />
   );
 };
 
@@ -42,4 +45,4 @@ const mapStateToProps = state => {
     auth: state.auth
   };
 };
-export default connect(mapStateToProps)(dropdown);
+export default connect(mapStateToProps, { logoutUser })(dropdown);
