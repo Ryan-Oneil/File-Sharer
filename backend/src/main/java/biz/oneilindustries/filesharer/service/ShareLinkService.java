@@ -5,6 +5,7 @@ import biz.oneilindustries.filesharer.entity.Link;
 import biz.oneilindustries.filesharer.entity.SharedFile;
 import biz.oneilindustries.filesharer.entity.User;
 import biz.oneilindustries.filesharer.exception.LinkException;
+import biz.oneilindustries.filesharer.exception.ResourceNotFoundException;
 import biz.oneilindustries.filesharer.repository.FileRepository;
 import biz.oneilindustries.filesharer.repository.LinkRepository;
 import java.io.File;
@@ -31,13 +32,19 @@ public class ShareLinkService {
         AtomicLong totalSize = new AtomicLong();
 
         files.forEach(file -> {
-            fileRepository.save(new SharedFile(file.getName(), file.length(), link));
+            fileRepository.save(new SharedFile(generateFileUUID(), file.getName(), file.length(), link));
             totalSize.addAndGet(file.length());
         });
         return totalSize.get();
     }
 
-    public Link createShareLink(User user, Date expires) {
+    public Link generateShareLink(User user, Date expires) {
+        String id = generateLinkUUID();
+
+        return new Link(id, user, expires);
+    }
+
+    public String generateLinkUUID() {
         String id = RandomIDGen.GetBase62(16);
         Optional<Link> link = getLink(id);
 
@@ -46,11 +53,19 @@ public class ShareLinkService {
 
             link = getLink(id);
         }
-        Link newLink = new Link(id, user, expires);
+        return id;
+    }
 
-        linkRepository.save(newLink);
+    public String generateFileUUID() {
+        String id = RandomIDGen.GetBase62(16);
+        Optional<SharedFile> file = getFile(id);
 
-        return newLink;
+        while (file.isPresent()) {
+            id = RandomIDGen.GetBase62(16);
+
+            file = getFile(id);
+        }
+        return id;
     }
 
     public Optional<Link> getLink(String id) {
@@ -63,5 +78,39 @@ public class ShareLinkService {
         if (!link.isPresent()) throw new LinkException("This shared link doesn't exist");
 
         return link.get();
+    }
+
+    public void deleteLink(String linkID) {
+        Link link = checkLinkExists(linkID);
+
+        linkRepository.delete(link);
+    }
+
+    public void saveLink(Link link) {
+        linkRepository.save(link);
+    }
+
+    public Optional<SharedFile> getFile(String id) {
+        return fileRepository.findById(id);
+    }
+
+    public Optional<SharedFile> getFileWithLink(String id) {
+        return fileRepository.getById(id);
+    }
+
+    public SharedFile checkFileExists(String name) {
+        Optional<SharedFile> file = getFile(name);
+
+        if (!file.isPresent()) throw new ResourceNotFoundException("Invalid File");
+
+        return file.get();
+    }
+
+    public SharedFile checkFileWithLinkExists(String name) {
+        Optional<SharedFile> file = getFileWithLink(name);
+
+        if (!file.isPresent()) throw new ResourceNotFoundException("Invalid File");
+
+        return file.get();
     }
 }

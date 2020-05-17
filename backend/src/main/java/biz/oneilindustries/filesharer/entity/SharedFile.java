@@ -2,8 +2,6 @@ package biz.oneilindustries.filesharer.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -14,8 +12,7 @@ import javax.persistence.Table;
 public class SharedFile {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private String id;
 
     private String name;
 
@@ -28,17 +25,18 @@ public class SharedFile {
     public SharedFile() {
     }
 
-    public SharedFile(String name, long size, Link link) {
+    public SharedFile(String id, String name, long size, Link link) {
+        this.id = id;
         this.name = name;
         this.size = size;
         this.link = link;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
