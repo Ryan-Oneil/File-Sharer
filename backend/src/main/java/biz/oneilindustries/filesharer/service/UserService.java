@@ -1,5 +1,6 @@
 package biz.oneilindustries.filesharer.service;
 
+import biz.oneilindustries.filesharer.exception.TokenException;
 import biz.oneilindustries.filesharer.repository.QuotaRepository;
 import biz.oneilindustries.filesharer.repository.ResetPasswordTokenRepository;
 import biz.oneilindustries.filesharer.repository.UserRepository;
@@ -115,11 +116,11 @@ public class UserService {
         saveVerificationToken(myToken);
     }
 
-    public VerificationToken getToken(String token) {
+    public Optional<VerificationToken> getToken(String token) {
         return verificationTokenRepository.findByToken(token);
     }
 
-    public VerificationToken getTokenByUser(User user) {
+    public Optional<VerificationToken> getTokenByUser(User user) {
         return verificationTokenRepository.findByUsername(user);
     }
 
@@ -132,26 +133,24 @@ public class UserService {
     }
 
     public String generateResetToken(User user) {
+        Optional<PasswordResetToken> passwordResetToken = resetPasswordTokenRepository.getByUsername(user.getUsername());
 
-        PasswordResetToken passwordResetToken = resetPasswordTokenRepository.getByUsername(user.getUsername());
-
-        if (passwordResetToken != null) {
-            if (!isExpired(passwordResetToken.getExpiryDate())) {
-                return passwordResetToken.getToken();
+        if (passwordResetToken.isPresent()) {
+            if (!isExpired(passwordResetToken.get().getExpiryDate())) {
+                return passwordResetToken.get().getToken();
             }else {
                 //Deletes from database if the existing token is expired
-                deletePasswordResetToken(passwordResetToken);
+                deletePasswordResetToken(passwordResetToken.get());
             }
         }
         String token = UUID.randomUUID().toString();
 
-        passwordResetToken = new PasswordResetToken(token,user);
-        resetPasswordTokenRepository.save(passwordResetToken);
+        resetPasswordTokenRepository.save(new PasswordResetToken(token,user));
 
         return token;
     }
 
-    public PasswordResetToken getResetToken(String token) {
+    public Optional<PasswordResetToken> getResetToken(String token) {
         return resetPasswordTokenRepository.getByToken(token);
     }
 
@@ -194,5 +193,29 @@ public class UserService {
             quota.setUsed(quota.getUsed() + amount);
             quotaRepository.save(quota);
         });
+    }
+
+    public VerificationToken validateVerificationToken(String tokenID) {
+        Optional<VerificationToken> verificationToken = getToken(tokenID);
+
+        if (!verificationToken.isPresent()) {
+            throw new TokenException("Invalid link");
+        }
+        if (isExpired(verificationToken.get().getExpiryDate())) {
+            throw new TokenException("Expired verification link");
+        }
+        return verificationToken.get();
+    }
+
+    public PasswordResetToken validatePasswordResetToken(String tokenID) {
+        Optional<PasswordResetToken> passwordResetToken = getResetToken(tokenID);
+
+        if (!passwordResetToken.isPresent()) {
+            throw new TokenException("Invalid link");
+        }
+        if (isExpired(passwordResetToken.get().getExpiryDate())) {
+            throw new TokenException("Expired Password reset link");
+        }
+        return passwordResetToken.get();
     }
 }

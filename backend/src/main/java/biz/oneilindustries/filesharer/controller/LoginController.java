@@ -2,6 +2,7 @@ package biz.oneilindustries.filesharer.controller;
 
 import static biz.oneilindustries.filesharer.AppConfig.FRONT_END_URL;
 
+import biz.oneilindustries.filesharer.entity.PasswordResetToken;
 import biz.oneilindustries.filesharer.entity.User;
 import biz.oneilindustries.filesharer.entity.VerificationToken;
 import biz.oneilindustries.filesharer.eventlisteners.OnRegistrationCompleteEvent;
@@ -41,7 +42,6 @@ public class LoginController {
 
     @PostMapping("/register")
     public ResponseEntity registerUser(@RequestBody @Valid LoginForm loginForm, HttpServletRequest request) {
-
         Optional<User> user = userService.getUser(loginForm.getName());
 
         if (user.isPresent()) {
@@ -64,8 +64,7 @@ public class LoginController {
 
     @PostMapping("/registrationConfirm/{token}")
     public ResponseEntity confirmRegistration(@PathVariable String token) {
-
-        VerificationToken verificationToken = userService.getToken(token);
+        VerificationToken verificationToken = userService.validateVerificationToken(token);
 
         User user = verificationToken.getUsername();
 
@@ -79,7 +78,6 @@ public class LoginController {
 
     @PostMapping("/forgotPassword/{email}")
     public ResponseEntity sendResetToken(@PathVariable String email) {
-
         Optional<User> user = userService.getUserByEmail(email);
 
         if (!user.isPresent()) {
@@ -94,13 +92,13 @@ public class LoginController {
 
     @PostMapping("/newPassword/{token}")
     public ResponseEntity setNewPassword(@PathVariable String token, @RequestParam String password) {
-
-        User user = userService.getResetToken(token).getUsername();
+        PasswordResetToken passwordResetToken = userService.validatePasswordResetToken(token);
+        User user = passwordResetToken.getUsername();
 
         if (user == null) {
             return ResponseEntity.badRequest().body("Invalid Password Reset Token");
         }
-        userService.deletePasswordResetToken(userService.getResetToken(token));
+        userService.deletePasswordResetToken(passwordResetToken);
         userService.changeUserPassword(user, password);
 
         return ResponseEntity.ok("Password has been changed");
