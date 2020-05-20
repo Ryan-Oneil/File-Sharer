@@ -1,12 +1,11 @@
 package biz.oneilindustries.filesharer.controller;
 
 import static biz.oneilindustries.filesharer.AppConfig.FRONT_END_URL;
-import static biz.oneilindustries.filesharer.AppConfig.SHARED_LINK_DIRECTORY;
 
+import biz.oneilindustries.filesharer.dto.LinkDTO;
 import biz.oneilindustries.filesharer.entity.Link;
 import biz.oneilindustries.filesharer.entity.SharedFile;
 import biz.oneilindustries.filesharer.entity.User;
-import biz.oneilindustries.filesharer.exception.UserException;
 import biz.oneilindustries.filesharer.service.ShareLinkService;
 import biz.oneilindustries.filesharer.service.SystemFileService;
 import biz.oneilindustries.filesharer.service.UserService;
@@ -14,10 +13,9 @@ import biz.oneilindustries.filesharer.validation.ShareLinkForm;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
@@ -50,19 +48,14 @@ public class FileSharingController {
 
     @PostMapping("/share")
     public ResponseEntity<String> createShareLink(ShareLinkForm form, HttpServletRequest request, Authentication username)
-        throws IOException, FileUploadException, ParseException {
-        Optional<User> checkUser = userService.getUser(username.getName());
+        throws FileUploadException, ParseException, IOException {
 
-        if (!checkUser.isPresent()) throw new UserException("Logged in user not found");
-        User user = checkUser.get();
+        User user = userService.checkUserExists(username.getName());
+        Link link = linkService.generateShareLink(user, form.getExpires());
 
         long remainingQuota = userService.getRemainingQuota(user.getUsername());
-
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        Link link = linkService.generateShareLink(user, format.parse(form.getExpires()));
-
-        List<File> uploadedFiles = systemFileService.handleFileUpload(request, remainingQuota, String.format(SHARED_LINK_DIRECTORY + "%s",
-            user.getUsername(), link.getId()));
+        List<File> uploadedFiles = systemFileService.handleFileUpload(request, remainingQuota,
+            linkService.getLinkDirectory(user.getUsername(), link.getId()));
 
         //Link only saves after the files have been handled to prevent Ghost links in case the file saving process failed
         linkService.saveLink(link);
@@ -80,12 +73,12 @@ public class FileSharingController {
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", String.format("attachment;filename=%s.zip", sharedLink.getId()));
 
-        systemFileService.streamFolderAsZip(String.format(SHARED_LINK_DIRECTORY + "%s", sharedLink.getCreator().getUsername(), sharedLink.getId()),
+        systemFileService.streamFolderAsZip(linkService.getLinkDirectory(sharedLink.getCreator().getUsername(), sharedLink.getId()),
             response.getOutputStream());
     }
 
     @DeleteMapping("/delete/{link}")
-    public ResponseEntity<HttpStatus> deleteSharedLink(@PathVariable String link) {
+    public ResponseEntity<HttpStatus> deleteSharedLink(@PathVariable String link, Authentication user) {
         linkService.deleteLink(link);
 
         return ResponseEntity.ok(HttpStatus.OK);
@@ -93,16 +86,27 @@ public class FileSharingController {
 
     @GetMapping("/file/dl/{fileID}")
     public ResponseEntity<StreamingResponseBody> downloadFileFromLink(@PathVariable String fileID, HttpServletResponse response) {
-
         SharedFile file = linkService.checkFileWithLinkExists(fileID);
         Link sharedLink = file.getLink();
 
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", String.format("attachment;filename=%s", file.getName()));
 
-        StreamingResponseBody streamedFile = systemFileService.streamFile(String.format(SHARED_LINK_DIRECTORY + "%s/%s",
-            sharedLink.getCreator().getUsername(), sharedLink.getId(), file.getName()));
+        StreamingResponseBody streamedFile = systemFileService.streamFile(linkService.getFileLocation(sharedLink.getCreator().getUsername(),
+            sharedLink.getId(), file.getName()));
 
         return ResponseEntity.status(HttpStatus.OK).contentLength(file.getSize()).cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).body(streamedFile);
     }
+
+//    User related APIs
+
+    @GetMapping("/user/{username}/links")
+    public ResponseEntity<List<LinkDTO>> displayUsersLink(@PathVariable String username, Authentication user) {
+        List<Link> links = linkService.getUserLinks(username);
+
+        List<LinkDTO> userLinks = links.stream().map(link -> new LinkDTO(link.getId(), link.getExpiryDatetime())).collect(Collectors.toList());
+
+        return ResponseEntity.ok(userLinks);
+    }
+
 }
