@@ -26,7 +26,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @Service
 public class SystemFileService {
 
-    public List<File> handleFileUpload(HttpServletRequest request, long uploadLimit, String destination) throws IOException, FileUploadException {
+    public List<File> handleFileUpload(HttpServletRequest request, long uploadLimit, String destination) throws FileUploadException, IOException {
         ArrayList<File> uploadedFiles = new ArrayList<>();
 
         ServletFileUpload upload = new ServletFileUpload();

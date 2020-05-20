@@ -19,7 +19,7 @@ public class Link {
     private String id;
 
     @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false, name = "creator")
+    @JoinColumn(nullable = false, name = "creator", referencedColumnName = "username")
     private User creator;
 
     @Column(name = "expiry_datetime")
@@ -59,5 +59,9 @@ public class Link {
 
     public void setExpiryDatetime(Date expiryDatetime) {
         this.expiryDatetime = expiryDatetime;
+    }
+
+    public List<SharedFile> getFiles() {
+        return files;
     }
 }

@@ -51,6 +51,14 @@ public class UserService {
         return userRepository.getByUsername(name);
     }
 
+    public User checkUserExists(String user) {
+        Optional<User> checkUser = getUser(user);
+
+        if (!checkUser.isPresent()) throw new UserException("Logged in user not found");
+
+        return checkUser.get();
+    }
+
     public Optional<User> getUserByEmail(String email) {
         return userRepository.getUsersByEmail(email);
     }
