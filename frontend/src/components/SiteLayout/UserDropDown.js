@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { logoutUser } from "../../actions";
 
 const dropdown = props => {
-  const { user } = props.auth;
+  const { name, avatar } = props.auth.user;
 
   const menuHeaderDropdown = (
     <Menu selectedKeys={[]} onClick={null}>
@@ -28,13 +28,8 @@ const dropdown = props => {
   return (
     <Dropdown overlay={menuHeaderDropdown}>
       <span className="right userDropdown">
-        <Avatar
-          size="small"
-          className="avatar"
-          src={user.avatar}
-          alt="avatar"
-        />
-        <span className="username">{user.name}</span>
+        <Avatar size="small" className="avatar" src={avatar} alt="avatar" />
+        <span className="username">{name}</span>
       </span>
     </Dropdown>
   );

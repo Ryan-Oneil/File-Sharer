@@ -11,8 +11,7 @@ import { decodeJWT, isTokenExpired } from "../actions";
 
 export default function auth(
   state = {
-    // isAuthenticated: isAuth(),
-    isAuthenticated: true,
+    isAuthenticated: isAuth(),
     user: { name: decodeJWT("refreshToken").user, avatar: "" },
     role: decodeJWT("authToken").role
   },
@@ -22,7 +21,7 @@ export default function auth(
     case LOGIN_REQUEST:
       return Object.assign({}, state, {
         isAuthenticated: false,
-        user: action.creds.username
+        user: { name: action.creds.username }
       });
     case LOGIN_SUCCESS:
       return Object.assign({}, state, {

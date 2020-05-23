@@ -1,48 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, Button, Card, Col, List, Row, Statistic, Tooltip } from "antd";
-import { displayBytesInReadableForm } from "../../helpers";
+import { displayBytesInReadableForm, getApiError } from "../../helpers";
 import DownloadOutlined from "@ant-design/icons/lib/icons/DownloadOutlined";
+import { apiGetCall, BASE_URL } from "../../apis/api";
+import { connect } from "react-redux";
+import { setError } from "../../actions/errors";
 
-export default props => {
+const Page = props => {
+  const [link, setLink] = useState({
+    title: "",
+    id: "",
+    views: 0,
+    expiryDatetime: "",
+    size: 0,
+    files: []
+  });
   const { id } = props.match.params;
 
-  const sampleData = [
-    {
-      title: "Hello.jpg",
-      size: "2390994",
-      id: "adw23"
-    },
-    {
-      title: "Test.txt",
-      size: "54321",
-      id: "wa1"
-    },
-    {
-      title: "Bans.docx",
-      size: "234390994",
-      id: "dwaf3"
-    },
-    {
-      title: "IA.txt",
-      size: "23920994",
-      id: "sdfe"
-    },
-    {
-      title: "AllImages.zip",
-      size: "2390912394",
-      id: "tyrr"
-    }
-  ];
+  const getLinkDetails = () => {
+    apiGetCall(`/info/${id}`)
+      .then(response => {
+        setLink(response.data);
+        setError("");
+      })
+      .catch(error => props.setError(getApiError(error)));
+  };
+
+  useEffect(() => {
+    getLinkDetails();
+  }, []);
 
   return (
     <Row style={{ padding: "2%" }}>
       <Col span={6}>
-        <Card title="Sample Link Title">
-          <Statistic title="Views" value={36} />
-          <Statistic title="Files" value={5} />
+        <Card title={link.title}>
+          <Statistic title="Views" value={link.views} />
+          <Statistic title="Files" value={link.files.length} />
           <Statistic
             title="Size"
-            value={displayBytesInReadableForm(29372104789)}
+            value={displayBytesInReadableForm(link.size)}
           />
         </Card>
       </Col>
@@ -50,7 +46,7 @@ export default props => {
         <Card>
           <List
             pagination
-            dataSource={sampleData}
+            dataSource={link.files}
             renderItem={item => (
               <List.Item
                 actions={[
@@ -60,7 +56,7 @@ export default props => {
                       type="primary"
                       icon={<DownloadOutlined />}
                       onClick={() => {
-                        window.open("https://www.google.com", "_blank");
+                        window.open(`${BASE_URL}/file/dl/${item.id}`, "_blank");
                       }}
                     />
                   </Tooltip>
@@ -70,7 +66,7 @@ export default props => {
                   avatar={
                     <Avatar src={require("../../assets/images/file.png")} />
                   }
-                  title={item.title}
+                  title={item.name}
                   description={`Size ${displayBytesInReadableForm(item.size)}`}
                 />
               </List.Item>
@@ -81,7 +77,7 @@ export default props => {
                   type="primary"
                   icon={<DownloadOutlined />}
                   onClick={() => {
-                    window.open("https://www.google.com", "_blank");
+                    window.open(`${BASE_URL}/download/${id}`, "_blank");
                   }}
                 >
                   Download All
@@ -94,3 +90,4 @@ export default props => {
     </Row>
   );
 };
+export default connect(null, { setError })(Page);

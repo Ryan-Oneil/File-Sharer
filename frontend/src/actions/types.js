@@ -11,3 +11,11 @@ export const NEW_PASSWORD_SENT = "NEW_PASSWORD_SENT";
 export const SET_ERROR = "SET_ERROR";
 export const CLEAR_ERROR = "CLEAR_ERROR";
 export const DISABLE_ERRORS = "DISABLE_ERRORS";
+
+//Users
+export const GET_USER_STATS = "GET_USER_STATS";
+
+//File sharer
+export const GET_SHARED_FILES = "GET_SHARED_FILES";
+export const GET_EXPIRED_FILES = "GET_EXPIRED_FILES";
+export const DELETE_LINK = "DELETE_LINK";

@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import InboxOutlined from "@ant-design/icons/lib/icons/InboxOutlined";
 import Dragger from "antd/lib/upload/Dragger";
 import { Avatar, Button, Card, Col, List, Row } from "antd";
-import ShareLinkForm from "../../components/form/ShareLinkForm";
 import StatisticCard from "../../components/Stats/StatisticCard";
 import { displayBytesInReadableForm } from "../../helpers";
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
+import { ShareLinkForm } from "../../components/form/ShareLinkForm";
 
 export default props => {
   const [files, setFiles] = useState([]);
@@ -31,11 +31,16 @@ export default props => {
     setTotalSize(prevState => prevState - file.size);
   };
 
+  const resetFiles = () => {
+    setFiles([]);
+    setTotalSize(0);
+  };
+
   return (
     <>
       <Row gutter={[32, 32]} type="flex">
         <Col span={8}>
-          <ShareLinkForm />
+          <ShareLinkForm files={files} resetFiles={resetFiles} />
         </Col>
         <Col span={16}>
           <Dragger {...config}>

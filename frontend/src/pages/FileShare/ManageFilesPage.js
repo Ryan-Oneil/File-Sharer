@@ -1,18 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Avatar, Button, Card, List, Modal, Tabs, Tooltip } from "antd";
 import EditOutlined from "@ant-design/icons/lib/icons/EditOutlined";
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
 import { displayBytesInReadableForm } from "../../helpers";
 import EyeOutlined from "@ant-design/icons/lib/icons/EyeOutlined";
 import DownloadOutlined from "@ant-design/icons/lib/icons/DownloadOutlined";
-import ShareLinkForm from "../../components/form/ShareLinkForm";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
+import { deleteLink, getUserFiles } from "../../actions/fileshare";
+import { BASE_URL } from "../../apis/api";
+import { ShareLinkForm } from "../../components/form/ShareLinkForm";
 const { TabPane } = Tabs;
 
 const ManageFilePage = props => {
   const [editLink, setEditLink] = useState("");
   const { activeFiles, expiredFiles } = props.fileSharer;
+
+  useEffect(() => {
+    const { user } = props.auth;
+
+    props.getUserFiles(user.name);
+  }, []);
 
   const activeLinkList = () => {
     return (
@@ -32,7 +40,7 @@ const ManageFilePage = props => {
                   shape="circle"
                   icon={<DownloadOutlined />}
                   onClick={() => {
-                    window.open("https://www.google.com", "_blank");
+                    window.open(`${BASE_URL}/download/${item.id}`, "_blank");
                   }}
                 />
               </Tooltip>,
@@ -49,13 +57,14 @@ const ManageFilePage = props => {
                   type="primary"
                   shape="circle"
                   icon={<DeleteOutlined />}
+                  onClick={() => props.deleteLink(item.id)}
                 />
               </Tooltip>
             ]}
           >
             <List.Item.Meta
               avatar={<Avatar src={require("../../assets/images/file.png")} />}
-              title={item.title}
+              title={item.id}
               description={`Size ${displayBytesInReadableForm(item.size)} - ${
                 item.views
               } views`}
@@ -118,6 +127,8 @@ const ManageFilePage = props => {
   );
 };
 const mapStateToProps = state => {
-  return { fileSharer: state.fileSharer };
+  return { fileSharer: state.fileSharer, auth: state.auth };
 };
-export default connect(mapStateToProps)(ManageFilePage);
+export default connect(mapStateToProps, { getUserFiles, deleteLink })(
+  ManageFilePage
+);

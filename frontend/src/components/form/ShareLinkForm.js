@@ -1,93 +1,112 @@
-import React, { useState } from "react";
-import { Field, Formik } from "formik";
+import React from "react";
+import { Field, withFormik } from "formik";
 import { ErrorDisplay, InputWithErrors } from "./index";
-import { Button, Card, DatePicker } from "antd";
+import { Alert, Button, Card, DatePicker } from "antd";
+import { apiPostCall } from "../../apis/api";
+import moment from "moment";
+import { getApiError, getDateWithAddedDays } from "../../helpers";
 
-export default props => {
+const LinkForm = props => {
   const {
-    initialValues = {
-      title: "",
-      expires: "",
-      password: ""
-    }
+    isValid,
+    isSubmitting,
+    setFieldValue,
+    touched,
+    handleSubmit,
+    values,
+    status,
+    setStatus
   } = props;
 
-  const onSubmit = values => {
-    console.log(values);
+  const onDateChange = date => {
+    setFieldValue("expires", date);
+    touched.expires = true;
   };
 
   return (
     <Card>
-      <Formik
-        initialValues={initialValues}
-        onSubmit={onSubmit}
-        validate={validate}
-        validateOnMount
-      >
-        {props => {
-          const {
-            isSubmitting,
-            handleSubmit,
-            isValid,
-            setFieldValue,
-            touched
-          } = props;
-
-          const onDateChange = (date, dateString) => {
-            setFieldValue("expires", dateString);
-            touched.expires = true;
-          };
-
-          return (
-            <form onSubmit={handleSubmit}>
-              <Field
-                name="title"
-                as={InputWithErrors}
-                type="text"
-                placeholder="Link Title"
-              />
-              <Field
-                name="password"
-                as={InputWithErrors}
-                type="text"
-                placeholder="Link Password (optional)"
-              />
-              <DatePicker
-                showTime={{ format: "HH:mm" }}
-                onChange={onDateChange}
-                style={{ width: "100%" }}
-                placeholder="Link expiry date/time"
-                size="large"
-                disabledDate={current => {
-                  return current && current.valueOf() < Date.now();
-                }}
-                showToday={false}
-              />
-              <ErrorDisplay name="expires" />
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="form-button"
-                disabled={!isValid || isSubmitting}
-                style={{ marginTop: 24 }}
-              >
-                Confirm
-              </Button>
-            </form>
-          );
-        }}
-      </Formik>
+      <form onSubmit={handleSubmit}>
+        <Field
+          name="title"
+          as={InputWithErrors}
+          type="text"
+          placeholder="Link Title"
+        />
+        <DatePicker
+          showTime={{ format: "HH:mm" }}
+          onChange={onDateChange}
+          style={{ width: "100%" }}
+          placeholder="Link expiry date/time"
+          size="large"
+          disabledDate={current => {
+            return current && current.valueOf() < Date.now();
+          }}
+          showToday={false}
+          value={values.expires !== "" ? moment(values.expires) : ""}
+        />
+        <ErrorDisplay name="expires" />
+        <Button
+          type="primary"
+          htmlType="submit"
+          className="form-button"
+          disabled={
+            !isValid ||
+            isSubmitting ||
+            (props.files && props.files.length === 0)
+          }
+          style={{ marginTop: 24 }}
+        >
+          Confirm
+        </Button>
+        {status && (
+          <Alert
+            message={status.msg}
+            type={status.type}
+            closable
+            showIcon
+            onClose={() => setStatus("")}
+          />
+        )}
+      </form>
     </Card>
   );
 };
 
-const validate = values => {
-  const errors = {};
-  if (!values.title) {
-    errors.title = "Title is required";
-  }
-  if (Date.parse(values.expires) < Date.now()) {
-    errors.expires = "Expiry date/time has already happened";
-  }
-  return errors;
-};
+export const ShareLinkForm = withFormik({
+  mapPropsToValues: props => ({
+    title: props.title ? props.title : "",
+    expires: props.expires ? props.expires : moment(getDateWithAddedDays(14))
+  }),
+  validate: values => {
+    const errors = {};
+    if (values.title && values.title.length > 255) {
+      errors.title = "Max length is 255 characters";
+    }
+    if (!values.expires) {
+      errors.expires = "Expiry is required";
+    }
+    if (Date.parse(values.expires) < Date.now()) {
+      errors.expires = "Expiry date/time has already happened";
+    }
+    return errors;
+  },
+  handleSubmit: (values, { setStatus, resetForm, props }) => {
+    let postData = new FormData();
+    props.files.forEach(file => postData.append("file", file, file.name));
+
+    let options = {
+      params: {
+        title: values.title,
+        expires: values.expires.toISOString().replace(/\.[0-9]{3}/, "")
+      }
+    };
+    return apiPostCall("/share", postData, options)
+      .then(response => {
+        resetForm();
+        setStatus({ msg: response.data, type: "success" });
+        props.resetFiles();
+      })
+      .catch(error => setStatus({ msg: getApiError(error), type: "error" }));
+  },
+  validateOnMount: true
+})(LinkForm);
