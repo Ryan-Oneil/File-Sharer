@@ -18,6 +18,8 @@ public class Link {
     @Id
     private String id;
 
+    private String title;
+
     @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "creator", referencedColumnName = "username")
     private User creator;
@@ -25,16 +27,20 @@ public class Link {
     @Column(name = "expiry_datetime")
     private Date expiryDatetime;
 
-    @OneToMany(mappedBy = "link")
+    @OneToMany(mappedBy = "link", orphanRemoval = true)
     private List<SharedFile> files;
+
+    private long size = 0;
 
     public Link() {
     }
 
-    public Link(String id, User creator, Date expiryDatetime) {
+    public Link(String id, String title, User creator, Date expiryDatetime, long size) {
         this.id = id;
+        this.title = title;
         this.creator = creator;
         this.expiryDatetime = expiryDatetime;
+        this.size = size;
     }
 
     public String getId() {
@@ -63,5 +69,17 @@ public class Link {
 
     public List<SharedFile> getFiles() {
         return files;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public long getSize() {
+        return size;
     }
 }

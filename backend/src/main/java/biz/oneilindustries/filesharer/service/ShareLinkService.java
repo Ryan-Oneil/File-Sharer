@@ -3,6 +3,8 @@ package biz.oneilindustries.filesharer.service;
 import static biz.oneilindustries.filesharer.AppConfig.SHARED_LINK_DIRECTORY;
 
 import biz.oneilindustries.RandomIDGen;
+import biz.oneilindustries.filesharer.dto.FileDTO;
+import biz.oneilindustries.filesharer.dto.LinkDTO;
 import biz.oneilindustries.filesharer.entity.Link;
 import biz.oneilindustries.filesharer.entity.SharedFile;
 import biz.oneilindustries.filesharer.entity.User;
@@ -16,12 +18,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,49 +34,67 @@ public class ShareLinkService {
     private final LinkRepository linkRepository;
     private final FileRepository fileRepository;
     private static final Logger logger = LogManager.getLogger(ShareLinkService.class);
+    private static final int UUID_LENGTH = 16;
 
-    @Autowired
     public ShareLinkService(LinkRepository linkRepository, FileRepository fileRepository) {
         this.linkRepository = linkRepository;
         this.fileRepository = fileRepository;
     }
 
-    public long shareFiles(List<File> files, Link link) {
-        AtomicLong totalSize = new AtomicLong();
+    public Link generateShareLink(User user, String expires, String title, List<File> files) throws ParseException, IOException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-        files.forEach(file -> {
-            fileRepository.save(new SharedFile(generateFileUUID(), file.getName(), file.length(), link));
-            totalSize.addAndGet(file.length());
-        });
-        return totalSize.get();
+        long sizeOfFiles = files.stream().mapToLong(File::length).sum();
+        Link link = new Link(generateLinkUUID(UUID_LENGTH), title, user, format.parse(expires), sizeOfFiles);
+
+        //Checks to see if the files parent directory matches the link id
+        //If files are uploaded using rest API then it is first put into a temp folder
+        if (!renameLinkDirectory(files.get(0), link)) {
+            logger.error("Unable to rename directory " + files.get(0).getParent());
+            throw new RuntimeException("Error changing directory name");
+        }
+        linkRepository.save(link);
+        shareFiles(files, link);
+
+        return link;
     }
 
-    public Link generateShareLink(User user, String expires) throws ParseException {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    private boolean renameLinkDirectory(File file, Link link) {
+        File parent = file.getParentFile();
 
-        String id = generateLinkUUID();
+        if (!parent.getName().equals(link.getId())) {
+            File reNamedDirectory = new File(getLinkDirectory(link.getCreator().getUsername(), link.getId()));
 
-        return new Link(id, user, format.parse(expires));
+            return parent.renameTo(reNamedDirectory);
+        }
+        return true;
     }
 
-    public String generateLinkUUID() {
-        String id = RandomIDGen.GetBase62(16);
+    public void shareFiles(List<File> files, Link link) {
+        List<SharedFile> sharedFiles = files.stream().map(file -> new SharedFile(generateFileUUID(UUID_LENGTH), file.getName(), file.length(), link))
+            .collect(Collectors.toList());
+
+        fileRepository.saveAll(sharedFiles);
+    }
+
+    public String generateLinkUUID(int length) {
+        String id = RandomIDGen.GetBase62(length);
         Optional<Link> link = getLink(id);
 
         while (link.isPresent()) {
-            id = RandomIDGen.GetBase62(16);
+            id = RandomIDGen.GetBase62(length);
 
             link = getLink(id);
         }
         return id;
     }
 
-    public String generateFileUUID() {
-        String id = RandomIDGen.GetBase62(16);
+    public String generateFileUUID(int length) {
+        String id = RandomIDGen.GetBase62(length);
         Optional<SharedFile> file = getFile(id);
 
         while (file.isPresent()) {
-            id = RandomIDGen.GetBase62(16);
+            id = RandomIDGen.GetBase62(length);
 
             file = getFile(id);
         }
@@ -83,7 +105,7 @@ public class ShareLinkService {
         return linkRepository.findById(id);
     }
 
-    public Link checkLinkExists(String linkID) {
+    public Link getLinkCheckPresence(String linkID) {
         Optional<Link> link = getLink(linkID);
 
         if (!link.isPresent()) throw new LinkException("This shared link doesn't exist");
@@ -91,27 +113,60 @@ public class ShareLinkService {
         return link.get();
     }
 
-    public void deleteLink(String linkID) {
-        Link link = checkLinkExists(linkID);
+    public Link getLinkValidate(String linkID) {
+        Link link = getLinkCheckPresence(linkID);
 
-        link.getFiles().forEach(sharedFile -> deleteFile(sharedFile, link.getCreator().getUsername(), link.getId()));
+        checkLinkExpiry(link);
+
+        return link;
+    }
+
+    public Link getLinkFileWithValidation(String linkID) {
+        Optional<Link> link = linkRepository.getById(linkID);
+
+        if (!link.isPresent()) throw new LinkException("This shared link doesn't exist");
+
+        return link.get();
+    }
+
+    public void checkLinkExpiry(Link link) {
+        if (isExpired(link.getExpiryDatetime())) throw new LinkException("This link has expired");
+    }
+
+    public boolean isExpired(Date date) {
+        Calendar cal = Calendar.getInstance();
+        return (date.getTime() - cal.getTime().getTime()) <= 0;
+    }
+
+    public Link deleteLink(String linkID) {
+        Link link = getLinkFileWithValidation(linkID);
+        User user = link.getCreator();
+
+        link.getFiles().forEach(sharedFile -> {
+            String fileLocation = getFileLocation(user.getUsername(), linkID, sharedFile.getName());
+
+            deleteLocalFile(fileLocation);
+        });
+        deleteLocalFile(getLinkDirectory(user.getUsername(), linkID));
 
         linkRepository.delete(link);
+
+        return link;
     }
 
     public void deleteFile(SharedFile file, String creator, String linkID) {
         String fileLocation = getFileLocation(creator, linkID, file.getName());
 
-        try {
-            Files.deleteIfExists(Paths.get(fileLocation));
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
+        deleteLocalFile(fileLocation);
         fileRepository.delete(file);
     }
 
-    public void saveLink(Link link) {
-        linkRepository.save(link);
+    private void deleteLocalFile(String path) {
+        try {
+            Files.deleteIfExists(Paths.get(path));
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
     }
 
     public Optional<SharedFile> getFile(String id) {
@@ -130,10 +185,11 @@ public class ShareLinkService {
         return file.get();
     }
 
-    public SharedFile checkFileWithLinkExists(String name) {
+    public SharedFile checkFileLinkValidation(String name) {
         Optional<SharedFile> file = getFileWithLink(name);
 
         if (!file.isPresent()) throw new ResourceNotFoundException("Invalid File");
+        checkLinkExpiry(file.get().getLink());
 
         return file.get();
     }
@@ -147,6 +203,45 @@ public class ShareLinkService {
     }
 
     public List<Link> getUserLinks(String user) {
-        return linkRepository.findByCreator(user);
+        return linkRepository.getAllByCreator(user);
+    }
+
+    public List<Link> getExpiredUserLinks(String user) {
+        return linkRepository.getAllExpiredByCreator(user);
+    }
+
+    public List<Link> getActiveUserLinks(String user) {
+        return linkRepository.getAllActiveByCreator(user);
+    }
+
+    public Map<String, List<LinkDTO>> getUserLinksSplit(String user) {
+        List<LinkDTO> activeLinks = linksToDTO(getActiveUserLinks(user));
+        List<LinkDTO> expiredLinks = linksToDTO(getExpiredUserLinks(user));
+
+        return Map.of("activeLinks", activeLinks, "expiredLinks", expiredLinks);
+    }
+
+    public List<LinkDTO> linksToDTO(List<Link> links) {
+        return links.stream()
+            .map(this::linkToDTO)
+            .collect(Collectors.toList());
+    }
+
+    public LinkDTO linkToDTO(Link link) {
+        return new LinkDTO(link.getTitle(), link.getId(), link.getExpiryDatetime(), link.getSize());
+    }
+
+    public LinkDTO linkToDTO(Link link, List<FileDTO> files) {
+        return new LinkDTO(link.getTitle(), link.getId(), link.getExpiryDatetime(), files, link.getSize());
+    }
+
+    public FileDTO fileToDTO(SharedFile file) {
+        return new FileDTO(file.getId(), file.getName(), file.getSize());
+    }
+
+    public List<FileDTO> filesToDTO(List<SharedFile> files) {
+        return files.stream()
+            .map(this::fileToDTO)
+            .collect(Collectors.toList());
     }
 }

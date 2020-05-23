@@ -2,10 +2,12 @@ package biz.oneilindustries.filesharer.controller;
 
 import static biz.oneilindustries.filesharer.AppConfig.FRONT_END_URL;
 
+import biz.oneilindustries.filesharer.dto.FileDTO;
 import biz.oneilindustries.filesharer.dto.LinkDTO;
 import biz.oneilindustries.filesharer.entity.Link;
 import biz.oneilindustries.filesharer.entity.SharedFile;
 import biz.oneilindustries.filesharer.entity.User;
+import biz.oneilindustries.filesharer.exception.LinkException;
 import biz.oneilindustries.filesharer.service.ShareLinkService;
 import biz.oneilindustries.filesharer.service.SystemFileService;
 import biz.oneilindustries.filesharer.service.UserService;
@@ -14,16 +16,17 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +41,6 @@ public class FileSharingController {
     private final UserService userService;
     private final ShareLinkService linkService;
 
-    @Autowired
     public FileSharingController(SystemFileService systemFileService, UserService userService,
         ShareLinkService linkService) {
         this.systemFileService = systemFileService;
@@ -47,28 +49,37 @@ public class FileSharingController {
     }
 
     @PostMapping("/share")
-    public ResponseEntity<String> createShareLink(ShareLinkForm form, HttpServletRequest request, Authentication username)
+    public ResponseEntity<String> createShareLink(@Valid ShareLinkForm form, BindingResult result, HttpServletRequest request, Authentication username)
         throws FileUploadException, ParseException, IOException {
 
-        User user = userService.checkUserExists(username.getName());
-        Link link = linkService.generateShareLink(user, form.getExpires());
-
+        if (result.hasErrors()) {
+            throw new LinkException(result.getFieldErrors().get(0).getDefaultMessage());
+        }
+        User user = (User) username.getPrincipal();
         long remainingQuota = userService.getRemainingQuota(user.getUsername());
+
         List<File> uploadedFiles = systemFileService.handleFileUpload(request, remainingQuota,
-            linkService.getLinkDirectory(user.getUsername(), link.getId()));
+            linkService.getLinkDirectory(user.getUsername(), linkService.generateLinkUUID(7)));
 
-        //Link only saves after the files have been handled to prevent Ghost links in case the file saving process failed
-        linkService.saveLink(link);
-
-        long shareSize = linkService.shareFiles(uploadedFiles, link);
-        userService.incrementUsedQuota(shareSize, user.getUsername());
+        Link link = linkService.generateShareLink(user, form.getExpires(), form.getTitle(), uploadedFiles);
+        userService.incrementUsedQuota(link.getSize(), user.getUsername());
 
         return ResponseEntity.ok(FRONT_END_URL + "/shared/" + link.getId());
     }
 
+    @GetMapping("/info/{link}")
+    public ResponseEntity<LinkDTO> viewLink(@PathVariable String link) {
+        Link sharedLink = linkService.getLinkFileWithValidation(link);
+
+        List<FileDTO> files = linkService.filesToDTO(sharedLink.getFiles());
+        LinkDTO linkDTO = linkService.linkToDTO(sharedLink, files);
+
+        return ResponseEntity.ok(linkDTO);
+    }
+
     @GetMapping("/download/{link}")
     public void downloadFiles(@PathVariable String link, HttpServletResponse response) throws IOException {
-        Link sharedLink = linkService.checkLinkExists(link);
+        Link sharedLink = linkService.getLinkValidate(link);
 
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", String.format("attachment;filename=%s.zip", sharedLink.getId()));
@@ -77,16 +88,17 @@ public class FileSharingController {
             response.getOutputStream());
     }
 
-    @DeleteMapping("/delete/{link}")
-    public ResponseEntity<HttpStatus> deleteSharedLink(@PathVariable String link, Authentication user) {
-        linkService.deleteLink(link);
+    @DeleteMapping("/delete/{linkID}")
+    public ResponseEntity<HttpStatus> deleteSharedLink(@PathVariable String linkID, Authentication user) {
+        Link link = linkService.deleteLink(linkID);
+        userService.decreaseUsedQuota(link.getSize(), user.getName());
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @GetMapping("/file/dl/{fileID}")
     public ResponseEntity<StreamingResponseBody> downloadFileFromLink(@PathVariable String fileID, HttpServletResponse response) {
-        SharedFile file = linkService.checkFileWithLinkExists(fileID);
+        SharedFile file = linkService.checkFileLinkValidation(fileID);
         Link sharedLink = file.getLink();
 
         response.setContentType("application/octet-stream");
@@ -101,12 +113,10 @@ public class FileSharingController {
 //    User related APIs
 
     @GetMapping("/user/{username}/links")
-    public ResponseEntity<List<LinkDTO>> displayUsersLink(@PathVariable String username, Authentication user) {
-        List<Link> links = linkService.getUserLinks(username);
+    public ResponseEntity<Map<String, List<LinkDTO>>> displayUsersLink(@PathVariable String username, Authentication user) {
+        Map<String, List<LinkDTO>> allLinks = linkService.getUserLinksSplit(username);
 
-        List<LinkDTO> userLinks = links.stream().map(link -> new LinkDTO(link.getId(), link.getExpiryDatetime())).collect(Collectors.toList());
-
-        return ResponseEntity.ok(userLinks);
+        return ResponseEntity.ok(allLinks);
     }
 
 }
