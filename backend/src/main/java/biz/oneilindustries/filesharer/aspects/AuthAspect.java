@@ -33,7 +33,7 @@ public class AuthAspect {
         String linkID = (String) args[0];
         String username = ((Authentication)args[1]).getName();
 
-        Link link = linkService.checkLinkExists(linkID);
+        Link link = linkService.getLinkCheckPresence(linkID);
 
         if (!link.getCreator().getUsername().equals(username)) {
             throw new NotAuthorisedException("You don't have permission to do this");

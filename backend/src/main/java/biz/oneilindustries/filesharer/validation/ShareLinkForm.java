@@ -1,16 +1,20 @@
 package biz.oneilindustries.filesharer.validation;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
 public class ShareLinkForm {
 
+    @Size(max = 255, message = "Title cannot exceed 255 characters")
     private String title;
 
-    private String password;
-
+    @NotNull(message = "A expiry date is required yyyy-MM-dd'T'HH:mm:ss'Z'")
+    @Pattern(regexp = "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})Z$", message = "Expiry date must follow UTC format yyyy-MM-dd'T'HH:mm:ss'Z'")
     private String expires;
 
-    public ShareLinkForm(String title, String password, String expires) {
+    public ShareLinkForm(String title, String expires) {
         this.title = title;
-        this.password = password;
         this.expires = expires;
     }
 
@@ -20,14 +24,6 @@ public class ShareLinkForm {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getExpires() {
@@ -42,7 +38,6 @@ public class ShareLinkForm {
     public String toString() {
         return "ShareLinkForm{" +
             "title='" + title + '\'' +
-            ", password='" + password + '\'' +
             ", expires=" + expires +
             '}';
     }

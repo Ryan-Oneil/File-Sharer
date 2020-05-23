@@ -1,6 +1,7 @@
 package biz.oneilindustries.filesharer.service;
 
 import biz.oneilindustries.RandomIDGen;
+import biz.oneilindustries.filesharer.exception.LinkException;
 import biz.oneilindustries.filesharer.exception.ResourceNotFoundException;
 import biz.oneilindustries.filesharer.filecreater.FileHandler;
 import java.io.File;
@@ -37,7 +38,7 @@ public class SystemFileService {
         try {
             iterator = upload.getItemIterator(request);
         } catch (IOException e) {
-            throw new RuntimeException("No file uploaded");
+            throw new RuntimeException("No form data");
         }
         while(iterator.hasNext()) {
             FileItemStream item = iterator.next();
@@ -47,8 +48,10 @@ public class SystemFileService {
             String fileName = RandomIDGen.GetBase62(16) + "." + FileHandler.getExtensionType(item.getName());
 
             File file = FileHandler.writeFile(item, fileName,  destination);
+
             uploadedFiles.add(file);
         }
+        if (uploadedFiles.size() <= 0) throw new LinkException("No files uploaded");
         return uploadedFiles;
     }
 

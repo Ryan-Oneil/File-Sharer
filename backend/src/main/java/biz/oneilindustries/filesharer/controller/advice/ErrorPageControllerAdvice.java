@@ -1,11 +1,13 @@
 package biz.oneilindustries.filesharer.controller.advice;
 
+import biz.oneilindustries.filesharer.exception.LinkException;
 import biz.oneilindustries.filesharer.exception.NotAuthorisedException;
 import biz.oneilindustries.filesharer.exception.TokenException;
 import biz.oneilindustries.filesharer.exception.TooManyLoginAttempts;
 import biz.oneilindustries.filesharer.exception.UserException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import java.io.FileNotFoundException;
+import java.text.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -52,6 +54,16 @@ public class ErrorPageControllerAdvice {
         return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
             .body(error.getMessage());
+    }
+
+    @ExceptionHandler(ParseException.class)
+    public ResponseEntity parseException(ParseException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid date entered, please follow yyyy-MM-dd'T'HH:mm:ss'Z'");
+    }
+
+    @ExceptionHandler(LinkException.class)
+    public ResponseEntity handleLinkException(LinkException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

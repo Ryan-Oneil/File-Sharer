@@ -5,19 +5,25 @@ import java.util.List;
 
 public class LinkDTO {
 
+    private String title;
     private String id;
-    private Date expiryDatetime;
+    private String expiryDatetime;
     private List<FileDTO> files;
+    private long size;
 
-    public LinkDTO(String id, Date expiryDatetime, List<FileDTO> files) {
+    public LinkDTO(String title, String id, Date expiryDatetime, List<FileDTO> files, long size) {
+        this.title = title;
         this.id = id;
-        this.expiryDatetime = expiryDatetime;
+        this.expiryDatetime = expiryDatetime.toString();
         this.files = files;
+        this.size = size;
     }
 
-    public LinkDTO(String id, Date expiryDatetime) {
+    public LinkDTO(String title, String id, Date expiryDatetime, long size) {
+        this.title = title;
         this.id = id;
-        this.expiryDatetime = expiryDatetime;
+        this.expiryDatetime = expiryDatetime.toString();
+        this.size = size;
     }
 
     public String getId() {
@@ -28,11 +34,11 @@ public class LinkDTO {
         this.id = id;
     }
 
-    public Date getExpiryDatetime() {
+    public String getExpiryDatetime() {
         return expiryDatetime;
     }
 
-    public void setExpiryDatetime(Date expiryDatetime) {
+    public void setExpiryDatetime(String expiryDatetime) {
         this.expiryDatetime = expiryDatetime;
     }
 
@@ -42,5 +48,13 @@ public class LinkDTO {
 
     public void setFiles(List<FileDTO> files) {
         this.files = files;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public String getTitle() {
+        return title;
     }
 }
