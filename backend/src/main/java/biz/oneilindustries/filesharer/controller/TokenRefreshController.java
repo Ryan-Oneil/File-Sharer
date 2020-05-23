@@ -52,6 +52,7 @@ public class TokenRefreshController {
         }
         return "Bearer " + JWT.create()
             .withSubject("authToken")
+            .withClaim("userID", user.get().getId())
             .withClaim("user", user.get().getUsername())
             .withClaim("role", user.get().getAuthorities().get(0).getAuthority())
             .withClaim("enabled", user.get().getEnabled())

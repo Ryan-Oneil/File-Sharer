@@ -198,7 +198,16 @@ public class UserService {
         Optional<Quota> userQuota = quotaRepository.findById(username);
 
         userQuota.ifPresent(quota -> {
-            quota.setUsed(quota.getUsed() + amount);
+            quota.increaseUsed(amount);
+            quotaRepository.save(quota);
+        });
+    }
+
+    public void decreaseUsedQuota(long amount, String username) {
+        Optional<Quota> userQuota = quotaRepository.findById(username);
+
+        userQuota.ifPresent(quota -> {
+            quota.decreaseUsed(amount);
             quotaRepository.save(quota);
         });
     }
