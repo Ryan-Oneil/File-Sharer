@@ -9,7 +9,6 @@ html, body {
 }
 .form-button {
     width: 100%;
-    margin-bottom: 24px;
 }
 .trigger {
     font-size: 18px;
@@ -18,9 +17,8 @@ html, body {
     cursor: pointer;
     transition: color 0.3s;
 }
-.iconHeader {
-    padding: 0 40px 0 0;
-    background: #fff
+.whiteBackground {
+    background: #fff;
 }
 .right {
     float: right;
@@ -41,12 +39,6 @@ html, body {
 }
 .userDropdown:hover {
     background: rgba(0,0,0,.025);
-}
-
-.logo {
-    height: 32px;
-    background: rgba(255, 255, 255, 0.2);
-    margin: 16px;
 }
 .mainContent {
     overflow: auto;
@@ -82,4 +74,22 @@ html, body {
 .login {
     width: 20%;
     margin: auto;
+}
+.appName {
+    color: rgba(255, 255, 255, 0.65);
+    text-align: center;
+    padding: 20px;
+}
+@media only screen and (max-width: 600px) {
+    .username {
+        display: none;
+    }
+    .right {
+        position: absolute;
+        top: 0;
+        right: 12px;
+    }
+    .right .account .avatar {
+        margin-right: 0;
+    }
 }
