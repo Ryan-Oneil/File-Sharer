@@ -1,6 +1,7 @@
 package biz.oneilindustries.filesharer.aspects;
 
 import biz.oneilindustries.filesharer.entity.Link;
+import biz.oneilindustries.filesharer.entity.SharedFile;
 import biz.oneilindustries.filesharer.exception.NotAuthorisedException;
 import biz.oneilindustries.filesharer.service.ShareLinkService;
 import org.aspectj.lang.JoinPoint;
@@ -26,7 +27,13 @@ public class AuthAspect {
     @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.displayUsersLink(..))")
     private void viewUserLinks() {}
 
-    @Before("deleteLink()")
+    @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.deleteFile(..))")
+    private void deleteFile() {}
+
+    @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.addFilesToLink(..))")
+    private void addFiles() {}
+
+    @Before("deleteLink() || addFiles()")
     public void hasLinkPermission(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
 
@@ -36,6 +43,20 @@ public class AuthAspect {
         Link link = linkService.getLinkCheckPresence(linkID);
 
         if (!link.getCreator().getUsername().equals(username)) {
+            throw new NotAuthorisedException("You don't have permission to do this");
+        }
+    }
+
+    @Before("deleteFile()")
+    public void hasFilePermission(JoinPoint joinPoint) {
+        Object[] args = joinPoint.getArgs();
+
+        String fileID = (String) args[0];
+        String username = ((Authentication)args[1]).getName();
+
+        SharedFile file = linkService.checkFileLinkValidation(fileID);
+
+        if (!file.getLink().getCreator().getUsername().equals(username)) {
             throw new NotAuthorisedException("You don't have permission to do this");
         }
     }

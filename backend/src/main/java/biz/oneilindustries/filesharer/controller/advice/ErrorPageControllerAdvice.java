@@ -2,6 +2,7 @@ package biz.oneilindustries.filesharer.controller.advice;
 
 import biz.oneilindustries.filesharer.exception.LinkException;
 import biz.oneilindustries.filesharer.exception.NotAuthorisedException;
+import biz.oneilindustries.filesharer.exception.ResourceNotFoundException;
 import biz.oneilindustries.filesharer.exception.TokenException;
 import biz.oneilindustries.filesharer.exception.TooManyLoginAttempts;
 import biz.oneilindustries.filesharer.exception.UserException;
@@ -64,6 +65,13 @@ public class ErrorPageControllerAdvice {
     @ExceptionHandler(LinkException.class)
     public ResponseEntity handleLinkException(LinkException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity handleResourceNotFoundException(ResourceNotFoundException error) {
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(error.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

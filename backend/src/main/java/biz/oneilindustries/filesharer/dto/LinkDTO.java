@@ -1,5 +1,6 @@
 package biz.oneilindustries.filesharer.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -8,7 +9,7 @@ public class LinkDTO {
     private String title;
     private String id;
     private String expiryDatetime;
-    private List<FileDTO> files;
+    private List<FileDTO> files = new ArrayList<>();
     private long size;
 
     public LinkDTO(String title, String id, Date expiryDatetime, List<FileDTO> files, long size) {

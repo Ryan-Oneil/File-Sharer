@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -47,15 +48,15 @@ public class ShareLinkService {
         long sizeOfFiles = files.stream().mapToLong(File::length).sum();
         Link link = new Link(generateLinkUUID(UUID_LENGTH), title, user, format.parse(expires), sizeOfFiles);
 
+        linkRepository.save(link);
+        shareFiles(files, link);
+
         //Checks to see if the files parent directory matches the link id
         //If files are uploaded using rest API then it is first put into a temp folder
         if (!renameLinkDirectory(files.get(0), link)) {
             logger.error("Unable to rename directory " + files.get(0).getParent());
             throw new RuntimeException("Error changing directory name");
         }
-        linkRepository.save(link);
-        shareFiles(files, link);
-
         return link;
     }
 
@@ -70,11 +71,12 @@ public class ShareLinkService {
         return true;
     }
 
-    public void shareFiles(List<File> files, Link link) {
+    public List<SharedFile> shareFiles(List<File> files, Link link) {
         List<SharedFile> sharedFiles = files.stream().map(file -> new SharedFile(generateFileUUID(UUID_LENGTH), file.getName(), file.length(), link))
             .collect(Collectors.toList());
 
         fileRepository.saveAll(sharedFiles);
+        return sharedFiles;
     }
 
     public String generateLinkUUID(int length) {
@@ -154,8 +156,23 @@ public class ShareLinkService {
         return link;
     }
 
-    public void deleteFile(SharedFile file, String creator, String linkID) {
-        String fileLocation = getFileLocation(creator, linkID, file.getName());
+    public void reduceLinkSize(Link link, long size) {
+        link.setSize(link.getSize() - size);
+        linkRepository.save(link);
+    }
+
+    public void increaseLinkSize(Link link, long size) {
+        link.setSize(link.getSize() + size);
+        linkRepository.save(link);
+    }
+
+    public void deleteFile(String fileID) {
+        SharedFile file = checkFileLinkValidation(fileID);
+        Link link = file.getLink();
+
+        reduceLinkSize(link, file.getSize());
+
+        String fileLocation = getFileLocation(link.getCreator().getUsername(), link.getId(), file.getName());
 
         deleteLocalFile(fileLocation);
         fileRepository.delete(file);
@@ -219,6 +236,37 @@ public class ShareLinkService {
         List<LinkDTO> expiredLinks = linksToDTO(getExpiredUserLinks(user));
 
         return Map.of("activeLinks", activeLinks, "expiredLinks", expiredLinks);
+    }
+
+    public List<FileDTO> addFilesToLink(String linkID, List<File> files) {
+        Link link = getLinkValidate(linkID);
+
+        long sizeOfFiles = files.stream().mapToLong(File::length).sum();
+        List<SharedFile> sharedFiles = shareFiles(files, link);
+
+        increaseLinkSize(link, sizeOfFiles);
+
+        moveNewFilesToDirectory(files, getLinkDirectory(link.getCreator().getUsername(), link.getId()));
+
+        return filesToDTO(sharedFiles);
+    }
+
+    private void moveNewFilesToDirectory(List<File> files, String dest) {
+        File destFolder = new File(dest);
+        File originalParent = files.get(0).getParentFile();
+
+        files.forEach(file -> {
+            try {
+                FileUtils.moveFileToDirectory(file, destFolder, false);
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+            }
+        });
+        try {
+            Files.deleteIfExists(originalParent.toPath());
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
     }
 
     public List<LinkDTO> linksToDTO(List<Link> links) {

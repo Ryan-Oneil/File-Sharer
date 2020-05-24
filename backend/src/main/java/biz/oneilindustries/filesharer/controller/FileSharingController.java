@@ -59,7 +59,7 @@ public class FileSharingController {
         long remainingQuota = userService.getRemainingQuota(user.getUsername());
 
         List<File> uploadedFiles = systemFileService.handleFileUpload(request, remainingQuota,
-            linkService.getLinkDirectory(user.getUsername(), linkService.generateLinkUUID(7)));
+            linkService.getLinkDirectory(user.getUsername(), linkService.generateLinkUUID(7)), false);
 
         Link link = linkService.generateShareLink(user, form.getExpires(), form.getTitle(), uploadedFiles);
         userService.incrementUsedQuota(link.getSize(), user.getUsername());
@@ -81,8 +81,10 @@ public class FileSharingController {
     public void downloadFiles(@PathVariable String link, HttpServletResponse response) throws IOException {
         Link sharedLink = linkService.getLinkValidate(link);
 
+        String fileName = sharedLink.getTitle() != null ? sharedLink.getTitle() : sharedLink.getId();
+
         response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", String.format("attachment;filename=%s.zip", sharedLink.getId()));
+        response.setHeader("Content-Disposition", String.format("attachment;filename=%s.zip", fileName));
 
         systemFileService.streamFolderAsZip(linkService.getLinkDirectory(sharedLink.getCreator().getUsername(), sharedLink.getId()),
             response.getOutputStream());
@@ -94,6 +96,21 @@ public class FileSharingController {
         userService.decreaseUsedQuota(link.getSize(), user.getName());
 
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @PostMapping("/link/add/{linkID}")
+    public ResponseEntity<List<FileDTO>> addFilesToLink(@PathVariable String linkID, Authentication username, HttpServletRequest request)
+        throws IOException, FileUploadException {
+
+        User user = (User) username.getPrincipal();
+        long remainingQuota = userService.getRemainingQuota(user.getUsername());
+
+        List<File> uploadedFiles = systemFileService.handleFileUpload(request, remainingQuota,
+            linkService.getLinkDirectory(user.getUsername(), linkService.generateLinkUUID(7)), false);
+
+        List<FileDTO> files = linkService.addFilesToLink(linkID, uploadedFiles);
+
+        return ResponseEntity.ok(files);
     }
 
     @GetMapping("/file/dl/{fileID}")
@@ -108,6 +125,13 @@ public class FileSharingController {
             sharedLink.getId(), file.getName()));
 
         return ResponseEntity.status(HttpStatus.OK).contentLength(file.getSize()).cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).body(streamedFile);
+    }
+
+    @DeleteMapping("/file/delete/{fileID}")
+    public ResponseEntity<HttpStatus> deleteFile(@PathVariable String fileID, Authentication user) {
+        linkService.deleteFile(fileID);
+
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
 //    User related APIs

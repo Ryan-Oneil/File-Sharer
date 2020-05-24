@@ -27,7 +27,8 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @Service
 public class SystemFileService {
 
-    public List<File> handleFileUpload(HttpServletRequest request, long uploadLimit, String destination) throws FileUploadException, IOException {
+    public List<File> handleFileUpload(HttpServletRequest request, long uploadLimit, String destination, boolean generateRandomName)
+        throws FileUploadException, IOException {
         ArrayList<File> uploadedFiles = new ArrayList<>();
 
         ServletFileUpload upload = new ServletFileUpload();
@@ -45,7 +46,8 @@ public class SystemFileService {
 
             if (item.isFormField()) continue;
 
-            String fileName = RandomIDGen.GetBase62(16) + "." + FileHandler.getExtensionType(item.getName());
+            String fileName = generateRandomName ? RandomIDGen.GetBase62(16) + "." + FileHandler.getExtensionType(item.getName()) :
+                item.getName();
 
             File file = FileHandler.writeFile(item, fileName,  destination);
 

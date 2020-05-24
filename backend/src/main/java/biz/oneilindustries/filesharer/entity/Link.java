@@ -79,6 +79,10 @@ public class Link {
         this.title = title;
     }
 
+    public void setSize(long size) {
+        this.size = size;
+    }
+
     public long getSize() {
         return size;
     }
