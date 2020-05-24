@@ -118,11 +118,11 @@ public class FileSharingController {
         SharedFile file = linkService.checkFileLinkValidation(fileID);
         Link sharedLink = file.getLink();
 
-        response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", String.format("attachment;filename=%s", file.getName()));
-
         StreamingResponseBody streamedFile = systemFileService.streamFile(linkService.getFileLocation(sharedLink.getCreator().getUsername(),
             sharedLink.getId(), file.getName()));
+
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", String.format("attachment;filename=%s", file.getName()));
 
         return ResponseEntity.status(HttpStatus.OK).contentLength(file.getSize()).cacheControl(CacheControl.maxAge(1, TimeUnit.DAYS)).body(streamedFile);
     }

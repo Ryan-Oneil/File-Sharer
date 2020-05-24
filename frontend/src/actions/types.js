@@ -17,5 +17,7 @@ export const GET_USER_STATS = "GET_USER_STATS";
 
 //File sharer
 export const GET_SHARED_FILES = "GET_SHARED_FILES";
-export const GET_EXPIRED_FILES = "GET_EXPIRED_FILES";
 export const DELETE_LINK = "DELETE_LINK";
+export const GET_LINK_DETAILS = "GET_LINK_DETAILS";
+export const DELETE_FILE = "DELETE_FILE";
+export const ADD_FILES = "ADD_FILES";

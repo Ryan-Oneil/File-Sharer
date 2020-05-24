@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.FileItemIterator;
 import org.apache.tomcat.util.http.fileupload.FileItemStream;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
@@ -26,6 +28,8 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 @Service
 public class SystemFileService {
+
+    private static final Logger logger = LogManager.getLogger(ShareLinkService.class);
 
     public List<File> handleFileUpload(HttpServletRequest request, long uploadLimit, String destination, boolean generateRandomName)
         throws FileUploadException, IOException {
@@ -69,7 +73,8 @@ public class SystemFileService {
                         zs.putNextEntry(zipEntry);
                         StreamUtils.copy(resource.getInputStream(), zs);
                         zs.closeEntry();
-                    } catch (IOException ignored) {
+                    } catch (IOException e) {
+                        logger.error(e.getMessage());
                     }
                 });
         }
@@ -79,7 +84,8 @@ public class SystemFileService {
         File fileToStream = new File(fileLocation);
 
         if (!fileToStream.exists()) {
-            throw new ResourceNotFoundException("File not found");
+            logger.error("File doesn't exist " + fileLocation);
+            throw new ResourceNotFoundException("This file doesn't exist on the server");
         }
         return out -> Files.copy(fileToStream.toPath(), out);
     }
