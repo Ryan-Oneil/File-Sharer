@@ -1,26 +1,14 @@
 import React, { useState } from "react";
-import InboxOutlined from "@ant-design/icons/lib/icons/InboxOutlined";
-import Dragger from "antd/lib/upload/Dragger";
 import { Avatar, Button, Card, Col, List, Row } from "antd";
 import StatisticCard from "../../components/Stats/StatisticCard";
 import { displayBytesInReadableForm } from "../../helpers";
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
 import { ShareLinkForm } from "../../components/form/ShareLinkForm";
+import Uploader from "../../components/Uploader";
 
 export default props => {
   const [files, setFiles] = useState([]);
   const [totalSize, setTotalSize] = useState(0);
-
-  const config = {
-    name: "file",
-    multiple: true,
-    showUploadList: false,
-    beforeUpload: file => {
-      setFiles(prevState => [...prevState, file]);
-      setTotalSize(prevState => prevState + file.size);
-      return false;
-    }
-  };
 
   const removeFile = file => {
     const index = files.indexOf(file);
@@ -43,12 +31,12 @@ export default props => {
           <ShareLinkForm files={files} resetFiles={resetFiles} />
         </Col>
         <Col span={16}>
-          <Dragger {...config}>
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined />
-            </p>
-            <p>Click or drag file to this area to upload</p>
-          </Dragger>
+          <Uploader
+            setFiles={setFiles}
+            setTotalSize={setTotalSize}
+            showUploadList={false}
+            files={files}
+          />
         </Col>
       </Row>
       <Row gutter={[32, 32]} type="flex">

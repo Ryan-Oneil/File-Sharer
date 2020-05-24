@@ -9,6 +9,7 @@ import UploadPage from "../FileShare/UploadPage";
 import ManageFilesPage from "../FileShare/ManageFilesPage";
 import NavHeader from "../../components/SiteLayout/Header";
 import Profile from "../Profile";
+import EditLinkPage from "../FileShare/EditLinkPage";
 
 class DashboardRouting extends React.Component {
   render() {
@@ -35,6 +36,11 @@ class DashboardRouting extends React.Component {
                   exact
                   path={`${match.path}/files`}
                   component={ManageFilesPage}
+                />
+                <Route
+                  exact
+                  path={`${match.path}/files/edit/:linkID`}
+                  component={EditLinkPage}
                 />
                 <Route
                   exact

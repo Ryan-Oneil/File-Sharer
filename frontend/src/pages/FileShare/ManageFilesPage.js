@@ -9,12 +9,12 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { deleteLink, getUserFiles } from "../../actions/fileshare";
 import { BASE_URL } from "../../apis/api";
-import { ShareLinkForm } from "../../components/form/ShareLinkForm";
+import ConfirmButton from "../../components/ConfirmButton";
 const { TabPane } = Tabs;
 
 const ManageFilePage = props => {
-  const [editLink, setEditLink] = useState("");
   const { activeFiles, expiredFiles } = props.fileSharer;
+  const { match } = props;
 
   useEffect(() => {
     const { user } = props.auth;
@@ -27,6 +27,7 @@ const ManageFilePage = props => {
       <List
         pagination
         dataSource={activeFiles}
+        size="small"
         renderItem={item => (
           <List.Item
             actions={[
@@ -45,26 +46,22 @@ const ManageFilePage = props => {
                 />
               </Tooltip>,
               <Tooltip title="Edit">
-                <Button
-                  shape="circle"
-                  icon={<EditOutlined />}
-                  onClick={() => setEditLink(item)}
-                />
+                <Link to={`${match.path}/edit/${item.id}`}>
+                  <Button shape="circle" icon={<EditOutlined />} />
+                </Link>
               </Tooltip>,
-              <Tooltip title="Delete">
-                <Button
-                  danger
-                  type="primary"
-                  shape="circle"
-                  icon={<DeleteOutlined />}
-                  onClick={() => props.deleteLink(item.id)}
-                />
-              </Tooltip>
+              <ConfirmButton
+                toolTip="Delete"
+                buttonIcon={<DeleteOutlined />}
+                confirmAction={() => props.deleteLink(item.id)}
+                modalTitle="Do you want to delete this link?"
+                modalDescription="All files will also be deleted"
+              />
             ]}
           >
             <List.Item.Meta
               avatar={<Avatar src={require("../../assets/images/file.png")} />}
-              title={item.id}
+              title={item.title ? item.title : item.id}
               description={`Size ${displayBytesInReadableForm(item.size)} - ${
                 item.views
               } views`}
@@ -79,6 +76,7 @@ const ManageFilePage = props => {
     return (
       <List
         pagination
+        size="small"
         dataSource={expiredFiles}
         renderItem={item => (
           <List.Item>
@@ -96,34 +94,16 @@ const ManageFilePage = props => {
   };
 
   return (
-    <>
-      <Card>
-        <Tabs defaultActiveKey="1">
-          <TabPane tab="Active" key="1" style={{ outline: "none" }}>
-            {activeLinkList()}
-          </TabPane>
-          <TabPane tab="Expired" key="2" style={{ outline: "none" }}>
-            {expiredLinkList()}
-          </TabPane>
-        </Tabs>
-      </Card>
-      {editLink && (
-        <Modal
-          title="Edit Shared Link"
-          visible={editLink}
-          onCancel={() => setEditLink("")}
-          footer={null}
-        >
-          <ShareLinkForm
-            initialValues={{
-              title: editLink.title,
-              password: editLink.password,
-              expires: editLink.expires
-            }}
-          />
-        </Modal>
-      )}
-    </>
+    <Card>
+      <Tabs defaultActiveKey="1">
+        <TabPane tab="Active" key="1" style={{ outline: "none" }}>
+          {activeLinkList()}
+        </TabPane>
+        <TabPane tab="Expired" key="2" style={{ outline: "none" }}>
+          {expiredLinkList()}
+        </TabPane>
+      </Tabs>
+    </Card>
   );
 };
 const mapStateToProps = state => {

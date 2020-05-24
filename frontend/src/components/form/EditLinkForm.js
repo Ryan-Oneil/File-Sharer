@@ -2,10 +2,8 @@ import React from "react";
 import { Field, withFormik } from "formik";
 import { ErrorDisplay, InputWithErrors } from "./index";
 import { Alert, Button, Card, DatePicker } from "antd";
-import { apiPostCall } from "../../apis/api";
 import moment from "moment";
-import { getApiError, getDateWithAddedDays } from "../../helpers";
-import { uploadFiles } from "../../actions/fileshare";
+import { getDateWithAddedDays } from "../../helpers";
 
 const LinkForm = props => {
   const {
@@ -50,11 +48,7 @@ const LinkForm = props => {
           type="primary"
           htmlType="submit"
           className="form-button"
-          disabled={
-            !isValid ||
-            isSubmitting ||
-            (props.files && props.files.length === 0)
-          }
+          disabled={!isValid || isSubmitting}
           style={{ marginTop: 24 }}
         >
           Confirm
@@ -73,7 +67,7 @@ const LinkForm = props => {
   );
 };
 
-export const ShareLinkForm = withFormik({
+export const EditLinkForm = withFormik({
   mapPropsToValues: props => ({
     title: props.title ? props.title : "",
     expires: props.expires ? props.expires : moment(getDateWithAddedDays(14))
@@ -91,18 +85,6 @@ export const ShareLinkForm = withFormik({
     }
     return errors;
   },
-  handleSubmit: (values, { setStatus, resetForm, props }) => {
-    let params = {
-      title: values.title,
-      expires: values.expires.toISOString().replace(/\.[0-9]{3}/, "")
-    };
-    return uploadFiles("/share", props.files, params)
-      .then(response => {
-        resetForm();
-        setStatus({ msg: response.data, type: "success" });
-        props.resetFiles();
-      })
-      .catch(error => setStatus({ msg: getApiError(error), type: "error" }));
-  },
+  handleSubmit: (values, { setStatus, props }) => {},
   validateOnMount: true
 })(LinkForm);
