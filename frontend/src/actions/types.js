@@ -21,3 +21,4 @@ export const DELETE_LINK = "DELETE_LINK";
 export const GET_LINK_DETAILS = "GET_LINK_DETAILS";
 export const DELETE_FILE = "DELETE_FILE";
 export const ADD_FILES = "ADD_FILES";
+export const GET_USER_LINK_STATS = "GET_USER_LINK_STATS";

@@ -1,26 +1,33 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { Avatar, Col, List, Row } from "antd";
 
 import StatisticCard from "../../components/Stats/StatisticCard";
 import ListCard from "../../components/Stats/ListCard";
 import { displayBytesInReadableForm } from "../../helpers";
+import { getUserLinkStats } from "../../actions/fileshare";
 
 const Overview = props => {
   const {
     totalViews,
-    totalShared,
+    totalLinks,
     mostViewed,
     recentShared
-  } = props.user.fileShareStats;
+  } = props.fileSharer.stats;
 
   const { used, max } = props.user.storageQuota;
+
+  useEffect(() => {
+    const { name } = props.auth.user;
+
+    props.getUserLinkStats(name);
+  }, []);
 
   return (
     <>
       <Row gutter={[32, 32]} type="flex">
         <Col xs={24} sm={24} md={6} lg={6} xl={6}>
-          <StatisticCard title="Total Shared Files" value={totalShared} />
+          <StatisticCard title="Total Shared Files" value={totalLinks} />
         </Col>
         <Col xs={24} sm={24} md={6} lg={6} xl={6}>
           <StatisticCard
@@ -50,7 +57,11 @@ const Overview = props => {
                       size="large"
                     />
                   }
-                  title={<a href="https://ant.design">{item.title}</a>}
+                  title={
+                    <a href="https://ant.design">
+                      {item.title ? item.title : item.id}
+                    </a>
+                  }
                   description={`${item.views} views`}
                 />
               </List.Item>
@@ -71,7 +82,11 @@ const Overview = props => {
                       size="large"
                     />
                   }
-                  title={<a href="https://ant.design">{item.title}</a>}
+                  title={
+                    <a href="https://ant.design">
+                      {item.title ? item.title : item.id}
+                    </a>
+                  }
                   description={`${item.views} views`}
                 />
               </List.Item>
@@ -83,6 +98,6 @@ const Overview = props => {
   );
 };
 const mapStateToProps = state => {
-  return { user: state.user };
+  return { auth: state.auth, fileSharer: state.fileSharer, user: state.user };
 };
-export default connect(mapStateToProps)(Overview);
+export default connect(mapStateToProps, { getUserLinkStats })(Overview);

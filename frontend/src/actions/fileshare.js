@@ -4,7 +4,8 @@ import {
   DELETE_FILE,
   DELETE_LINK,
   GET_LINK_DETAILS,
-  GET_SHARED_FILES
+  GET_SHARED_FILES,
+  GET_USER_LINK_STATS
 } from "./types";
 import { setError } from "./errors";
 import { getApiError } from "../helpers";
@@ -59,4 +60,12 @@ export const uploadFiles = (endpoint, files, params = {}) => {
     params: params
   };
   return apiPostCall(endpoint, postData, options);
+};
+
+export const getUserLinkStats = user => dispatch => {
+  apiGetCall(`/user/${user}/link/stats`)
+    .then(response => {
+      dispatch({ type: GET_USER_LINK_STATS, payload: response.data });
+    })
+    .catch(error => dispatch(setError(getApiError(error))));
 };

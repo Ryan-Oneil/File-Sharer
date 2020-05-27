@@ -3,10 +3,23 @@ import {
   DELETE_FILE,
   DELETE_LINK,
   GET_LINK_DETAILS,
-  GET_SHARED_FILES
+  GET_SHARED_FILES,
+  GET_USER_LINK_STATS
 } from "../actions/types";
 
-export default (state = { activeFiles: [], expiredFiles: [] }, action) => {
+export default (
+  state = {
+    activeFiles: [],
+    expiredFiles: [],
+    stats: {
+      totalViews: 0,
+      totalLinks: 0,
+      mostViewed: [],
+      recentShared: []
+    }
+  },
+  action
+) => {
   switch (action.type) {
     case GET_SHARED_FILES: {
       return {
@@ -64,6 +77,9 @@ export default (state = { activeFiles: [], expiredFiles: [] }, action) => {
       updatedLink.size += newFilesSize;
 
       return { ...state, activeFiles: [...activeFiles, updatedLink] };
+    }
+    case GET_USER_LINK_STATS: {
+      return { ...state, stats: action.payload };
     }
     default: {
       return { ...state };
