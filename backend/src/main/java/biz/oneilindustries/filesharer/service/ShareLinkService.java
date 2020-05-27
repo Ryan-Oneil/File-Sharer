@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,11 +43,11 @@ public class ShareLinkService {
         this.fileRepository = fileRepository;
     }
 
-    public Link generateShareLink(User user, String expires, String title, List<File> files) throws ParseException, IOException {
+    public Link generateShareLink(User user, String expires, String title, List<File> files) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
         long sizeOfFiles = files.stream().mapToLong(File::length).sum();
-        Link link = new Link(generateLinkUUID(UUID_LENGTH), title, user, format.parse(expires), sizeOfFiles);
+        Link link = new Link(generateLinkUUID(UUID_LENGTH), title, user, format.parse(expires), new Date(), sizeOfFiles);
 
         linkRepository.save(link);
         shareFiles(files, link);
@@ -269,6 +270,30 @@ public class ShareLinkService {
         }
     }
 
+    public void editLink(String linkID, String title, String expires) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        Date date = format.parse(expires);
+
+        Link link = getLinkValidate(linkID);
+
+        link.setTitle(title);
+        link.setExpiryDatetime(date);
+        linkRepository.save(link);
+    }
+
+    public HashMap<String, Object> getUserStats(String user) {
+        HashMap<String, Object> stats = new HashMap<>();
+        List<LinkDTO> recentLinks = linksToDTO(linkRepository.findTop5ByCreator_UsernameOrderByCreationDateDesc(user));
+        List<LinkDTO> mostViewedLinks = linksToDTO(linkRepository.findTop5ByCreator_UsernameOrderByViewsDesc(user));
+
+        stats.put("totalLinks", linkRepository.getUserLinkCount(user));
+        stats.put("totalViews", linkRepository.getUserLinkCount(user));
+        stats.put("mostViewed", mostViewedLinks);
+        stats.put("recentShared", recentLinks);
+
+        return stats;
+    }
+
     public List<LinkDTO> linksToDTO(List<Link> links) {
         return links.stream()
             .map(this::linkToDTO)
@@ -276,11 +301,11 @@ public class ShareLinkService {
     }
 
     public LinkDTO linkToDTO(Link link) {
-        return new LinkDTO(link.getTitle(), link.getId(), link.getExpiryDatetime(), link.getSize());
+        return new LinkDTO(link.getTitle(), link.getId(), link.getExpiryDatetime(), link.getSize(), link.getViews());
     }
 
     public LinkDTO linkToDTO(Link link, List<FileDTO> files) {
-        return new LinkDTO(link.getTitle(), link.getId(), link.getExpiryDatetime(), files, link.getSize());
+        return new LinkDTO(link.getTitle(), link.getId(), link.getExpiryDatetime(), files, link.getSize(), link.getViews());
     }
 
     public FileDTO fileToDTO(SharedFile file) {

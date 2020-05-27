@@ -27,13 +27,20 @@ public class AuthAspect {
     @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.displayUsersLink(..))")
     private void viewUserLinks() {}
 
+    @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.editLink(..))")
+    private void editLink() {}
+
     @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.deleteFile(..))")
     private void deleteFile() {}
 
     @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.addFilesToLink(..))")
     private void addFiles() {}
 
-    @Before("deleteLink() || addFiles()")
+    @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.displayUserLinkStats(..))")
+    private void displayUserLinkStats() {}
+
+
+    @Before("deleteLink() || addFiles() || editLink()")
     public void hasLinkPermission(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
 
@@ -61,7 +68,7 @@ public class AuthAspect {
         }
     }
 
-    @Before("viewUserLinks()")
+    @Before("viewUserLinks() || displayUserLinkStats()")
     public void hasUserPermission(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
 

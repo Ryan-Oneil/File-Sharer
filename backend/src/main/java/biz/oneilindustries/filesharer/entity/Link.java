@@ -27,19 +27,24 @@ public class Link {
     @Column(name = "expiry_datetime")
     private Date expiryDatetime;
 
+    @Column(name = "creation_date")
+    private Date creationDate;
+
     @OneToMany(mappedBy = "link", orphanRemoval = true)
     private List<SharedFile> files;
 
     private long size = 0;
+    private long views = 0;
 
     public Link() {
     }
 
-    public Link(String id, String title, User creator, Date expiryDatetime, long size) {
+    public Link(String id, String title, User creator, Date expiryDatetime, Date creationDate, long size) {
         this.id = id;
         this.title = title;
         this.creator = creator;
         this.expiryDatetime = expiryDatetime;
+        this.creationDate = creationDate;
         this.size = size;
     }
 
@@ -85,5 +90,17 @@ public class Link {
 
     public long getSize() {
         return size;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setViews(long views) {
+        this.views = views;
+    }
+
+    public long getViews() {
+        return views;
     }
 }

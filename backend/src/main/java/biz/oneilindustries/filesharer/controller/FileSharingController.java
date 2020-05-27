@@ -15,6 +15,7 @@ import biz.oneilindustries.filesharer.validation.ShareLinkForm;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -113,6 +115,13 @@ public class FileSharingController {
         return ResponseEntity.ok(files);
     }
 
+    @PutMapping("/link/edit/{linkID}")
+    public ResponseEntity<HttpStatus> editLink(@PathVariable String linkID, Authentication username, ShareLinkForm form) throws ParseException {
+        linkService.editLink(linkID, form.getTitle(), form.getExpires());
+
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
     @GetMapping("/file/dl/{fileID}")
     public ResponseEntity<StreamingResponseBody> downloadFileFromLink(@PathVariable String fileID, HttpServletResponse response) {
         SharedFile file = linkService.checkFileLinkValidation(fileID);
@@ -143,4 +152,10 @@ public class FileSharingController {
         return ResponseEntity.ok(allLinks);
     }
 
+    @GetMapping("/user/{username}/link/stats")
+    public ResponseEntity<HashMap<String, Object>> displayUserLinkStats(@PathVariable String username, Authentication user) {
+        HashMap<String, Object> userStats = linkService.getUserStats(username);
+
+        return ResponseEntity.ok(userStats);
+    }
 }

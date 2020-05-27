@@ -11,20 +11,23 @@ public class LinkDTO {
     private String expiryDatetime;
     private List<FileDTO> files = new ArrayList<>();
     private long size;
+    private long views;
 
-    public LinkDTO(String title, String id, Date expiryDatetime, List<FileDTO> files, long size) {
+    public LinkDTO(String title, String id, Date expiryDatetime, List<FileDTO> files, long size, long views) {
         this.title = title;
         this.id = id;
         this.expiryDatetime = expiryDatetime.toString();
         this.files = files;
         this.size = size;
+        this.views = views;
     }
 
-    public LinkDTO(String title, String id, Date expiryDatetime, long size) {
+    public LinkDTO(String title, String id, Date expiryDatetime, long size, long views) {
         this.title = title;
         this.id = id;
         this.expiryDatetime = expiryDatetime.toString();
         this.size = size;
+        this.views = views;
     }
 
     public String getId() {
@@ -57,5 +60,9 @@ public class LinkDTO {
 
     public String getTitle() {
         return title;
+    }
+
+    public long getViews() {
+        return views;
     }
 }

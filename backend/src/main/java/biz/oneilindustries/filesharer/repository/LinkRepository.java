@@ -23,4 +23,14 @@ public interface  LinkRepository extends CrudRepository<Link, String> {
 
     @Query("select l from Link l where l.creator.username = :username and l.expiryDatetime > CURRENT_TIMESTAMP ")
     List<Link> getAllActiveByCreator(String username);
+
+    List<Link> findTop5ByCreator_UsernameOrderByCreationDateDesc(String username);
+
+    @Query("select count(l) from Link l where l.creator.username = :username")
+    int getUserLinkCount(String username);
+
+    @Query("select sum (l.views) from Link l where l.creator.username = :username")
+    long getUserTotalViews(String username);
+
+    List<Link> findTop5ByCreator_UsernameOrderByViewsDesc(String username);
 }
