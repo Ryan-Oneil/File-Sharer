@@ -2,6 +2,7 @@ package biz.oneilindustries.filesharer.controller;
 
 import static biz.oneilindustries.filesharer.AppConfig.FRONT_END_URL;
 
+import biz.oneilindustries.filesharer.dto.QuotaDTO;
 import biz.oneilindustries.filesharer.entity.PasswordResetToken;
 import biz.oneilindustries.filesharer.entity.User;
 import biz.oneilindustries.filesharer.entity.VerificationToken;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,17 +27,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
-public class LoginController {
+@RequestMapping("/user")
+public class UserController {
 
     private final UserService userService;
-
     private final ApplicationEventPublisher eventPublisher;
-
     private final EmailSender emailSender;
 
     @Autowired
-    public LoginController(UserService userService, ApplicationEventPublisher eventPublisher, EmailSender emailSender) {
+    public UserController(UserService userService, ApplicationEventPublisher eventPublisher, EmailSender emailSender) {
         this.userService = userService;
         this.eventPublisher = eventPublisher;
         this.emailSender = emailSender;
@@ -93,14 +94,19 @@ public class LoginController {
     @PostMapping("/newPassword/{token}")
     public ResponseEntity setNewPassword(@PathVariable String token, @RequestParam String password) {
         PasswordResetToken passwordResetToken = userService.validatePasswordResetToken(token);
-        User user = passwordResetToken.getUsername();
+        Optional<User> user = Optional.ofNullable(passwordResetToken.getUsername());
 
-        if (user == null) {
+        if (!user.isPresent()) {
             return ResponseEntity.badRequest().body("Invalid Password Reset Token");
         }
         userService.deletePasswordResetToken(passwordResetToken);
-        userService.changeUserPassword(user, password);
+        userService.changeUserPassword(user.get(), password);
 
         return ResponseEntity.ok("Password has been changed");
+    }
+
+    @GetMapping("/{username}/quota")
+    public ResponseEntity<QuotaDTO> getRemainingQuota(@PathVariable String username, Authentication user) {
+        return ResponseEntity.ok(userService.quotaToDTO(userService.getUserQuota(username)));
     }
 }

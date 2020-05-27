@@ -14,6 +14,7 @@ export const DISABLE_ERRORS = "DISABLE_ERRORS";
 
 //Users
 export const GET_USER_STATS = "GET_USER_STATS";
+export const GET_QUOTA_STATS = "GET_QUOTA_STATS";
 
 //File sharer
 export const GET_SHARED_FILES = "GET_SHARED_FILES";

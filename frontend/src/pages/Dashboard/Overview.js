@@ -6,6 +6,7 @@ import StatisticCard from "../../components/Stats/StatisticCard";
 import ListCard from "../../components/Stats/ListCard";
 import { displayBytesInReadableForm } from "../../helpers";
 import { getUserLinkStats } from "../../actions/fileshare";
+import { getQuotaStats } from "../../actions/user";
 
 const Overview = props => {
   const {
@@ -21,6 +22,7 @@ const Overview = props => {
     const { name } = props.auth.user;
 
     props.getUserLinkStats(name);
+    props.getQuotaStats(name);
   }, []);
 
   return (
@@ -100,4 +102,6 @@ const Overview = props => {
 const mapStateToProps = state => {
   return { auth: state.auth, fileSharer: state.fileSharer, user: state.user };
 };
-export default connect(mapStateToProps, { getUserLinkStats })(Overview);
+export default connect(mapStateToProps, { getUserLinkStats, getQuotaStats })(
+  Overview
+);

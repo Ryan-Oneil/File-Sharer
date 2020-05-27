@@ -1,5 +1,6 @@
 package biz.oneilindustries.filesharer.service;
 
+import biz.oneilindustries.filesharer.dto.QuotaDTO;
 import biz.oneilindustries.filesharer.exception.TokenException;
 import biz.oneilindustries.filesharer.repository.QuotaRepository;
 import biz.oneilindustries.filesharer.repository.ResetPasswordTokenRepository;
@@ -234,5 +235,16 @@ public class UserService {
             throw new TokenException("Expired Password reset link");
         }
         return passwordResetToken.get();
+    }
+
+    public Quota getUserQuota(String user) {
+        Optional<Quota> userQuota = quotaRepository.findById(user);
+
+        if (!userQuota.isPresent()) throw new UserException("User not found");
+        return userQuota.get();
+    }
+
+    public QuotaDTO quotaToDTO(Quota quota) {
+        return new QuotaDTO(quota.getUsed(), quota.getMax(), quota.isIgnoreQuota());
     }
 }

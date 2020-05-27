@@ -1,4 +1,4 @@
-import { GET_USER_STATS } from "../actions/types";
+import { GET_QUOTA_STATS, GET_USER_STATS } from "../actions/types";
 
 export default (
   state = {
@@ -10,6 +10,9 @@ export default (
   switch (action.type) {
     case GET_USER_STATS: {
       return { ...state };
+    }
+    case GET_QUOTA_STATS: {
+      return { ...state, storageQuota: action.payload };
     }
     default: {
       return { ...state };
