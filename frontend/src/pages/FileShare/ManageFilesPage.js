@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Avatar, Button, Card, List, Modal, Tabs, Tooltip } from "antd";
+import React, { useEffect } from "react";
+import { Avatar, Button, Card, List, Tabs, Tooltip } from "antd";
 import EditOutlined from "@ant-design/icons/lib/icons/EditOutlined";
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
 import { displayBytesInReadableForm } from "../../helpers";

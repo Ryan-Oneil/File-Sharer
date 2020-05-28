@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -118,7 +119,12 @@ public class FileSharingController {
     }
 
     @PutMapping("/link/edit/{linkID}")
-    public ResponseEntity<HttpStatus> editLink(@PathVariable String linkID, Authentication username, ShareLinkForm form) throws ParseException {
+    public ResponseEntity<HttpStatus> editLink(@PathVariable String linkID, Authentication username, @Valid @RequestBody ShareLinkForm form,
+        BindingResult result) throws ParseException {
+
+        if (result.hasErrors()) {
+            throw new LinkException(result.getFieldErrors().get(0).getDefaultMessage());
+        }
         linkService.editLink(linkID, form.getTitle(), form.getExpires());
 
         return ResponseEntity.ok(HttpStatus.OK);

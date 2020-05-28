@@ -18,6 +18,9 @@ public class ShareLinkForm {
         this.expires = expires;
     }
 
+    public ShareLinkForm() {
+    }
+
     public String getTitle() {
         return title;
     }

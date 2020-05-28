@@ -3,7 +3,7 @@ import { Field, withFormik } from "formik";
 import { ErrorDisplay, InputWithErrors } from "./index";
 import { Alert, Button, Card, DatePicker } from "antd";
 import moment from "moment";
-import { getDateWithAddedDays } from "../../helpers";
+import { getApiError } from "../../helpers";
 
 const LinkForm = props => {
   const {
@@ -69,8 +69,8 @@ const LinkForm = props => {
 
 export const EditLinkForm = withFormik({
   mapPropsToValues: props => ({
-    title: props.title ? props.title : "",
-    expires: props.expires ? props.expires : moment(getDateWithAddedDays(14))
+    title: props.link.title,
+    expires: props.link.expiryDatetime
   }),
   validate: values => {
     const errors = {};
@@ -85,6 +85,14 @@ export const EditLinkForm = withFormik({
     }
     return errors;
   },
-  handleSubmit: (values, { setStatus, props }) => {},
+  handleSubmit: (values, { setStatus, props }) => {
+    const updatedLink = {
+      title: values.title,
+      expires: values.expires.toISOString().replace(/\.[0-9]{3}/, "")
+    };
+    return props
+      .submitAction(props.id, updatedLink)
+      .catch(error => setStatus({ msg: getApiError(error), type: "error" }));
+  },
   validateOnMount: true
 })(LinkForm);

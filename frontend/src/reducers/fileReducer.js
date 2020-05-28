@@ -2,6 +2,7 @@ import {
   ADD_FILES,
   DELETE_FILE,
   DELETE_LINK,
+  EDIT_LINK,
   GET_LINK_DETAILS,
   GET_SHARED_FILES,
   GET_USER_LINK_STATS
@@ -80,6 +81,18 @@ export default (
     }
     case GET_USER_LINK_STATS: {
       return { ...state, stats: action.payload };
+    }
+    case EDIT_LINK: {
+      const activeLinks = state.activeFiles.filter(
+        link => link.id !== action.linkID
+      );
+      const updatedLink = state.activeFiles.find(
+        link => link.id === action.linkID
+      );
+      updatedLink.title = action.link.title;
+      updatedLink.expires = action.link.expires;
+
+      return { ...state, activeFiles: [...activeLinks, updatedLink] };
     }
     default: {
       return { ...state };

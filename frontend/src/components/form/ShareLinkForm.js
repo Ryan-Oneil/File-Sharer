@@ -2,7 +2,6 @@ import React from "react";
 import { Field, withFormik } from "formik";
 import { ErrorDisplay, InputWithErrors } from "./index";
 import { Alert, Button, Card, DatePicker } from "antd";
-import { apiPostCall } from "../../apis/api";
 import moment from "moment";
 import { getApiError, getDateWithAddedDays } from "../../helpers";
 import { uploadFiles } from "../../actions/fileshare";

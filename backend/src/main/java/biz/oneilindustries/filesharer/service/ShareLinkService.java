@@ -278,8 +278,8 @@ public class ShareLinkService {
 
     public void editLink(String linkID, String title, String expires) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        Date date = format.parse(expires);
 
+        Date date = format.parse(expires);
         Link link = getLinkValidate(linkID);
 
         link.setTitle(title);
@@ -293,7 +293,7 @@ public class ShareLinkService {
         List<LinkDTO> mostViewedLinks = linksToDTO(linkRepository.findTop5ByCreator_UsernameOrderByViewsDesc(user));
 
         stats.put("totalLinks", linkRepository.getUserLinkCount(user));
-        stats.put("totalViews", linkRepository.getUserLinkCount(user));
+        stats.put("totalViews", linkRepository.getUserTotalViews(user));
         stats.put("mostViewed", mostViewedLinks);
         stats.put("recentShared", recentLinks);
 

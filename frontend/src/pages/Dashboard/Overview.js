@@ -29,7 +29,7 @@ const Overview = props => {
     <>
       <Row gutter={[32, 32]} type="flex">
         <Col xs={24} sm={24} md={6} lg={6} xl={6}>
-          <StatisticCard title="Total Shared Files" value={totalLinks} />
+          <StatisticCard title="Total Shared Links" value={totalLinks} />
         </Col>
         <Col xs={24} sm={24} md={6} lg={6} xl={6}>
           <StatisticCard
@@ -47,7 +47,7 @@ const Overview = props => {
       <Row gutter={[32, 32]} type="flex">
         <Col xs={24} sm={24} md={12} lg={12} xl={12}>
           <ListCard
-            title="Most Viewed Files"
+            title="Most Viewed Links"
             itemLayout="horizontal"
             dataSource={mostViewed}
             renderItem={item => (
@@ -72,7 +72,7 @@ const Overview = props => {
         </Col>
         <Col xs={24} sm={24} md={12} lg={12} xl={12}>
           <ListCard
-            title="Recent Files"
+            title="Recent Links"
             itemLayout="horizontal"
             dataSource={recentShared}
             renderItem={item => (

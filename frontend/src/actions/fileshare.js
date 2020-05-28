@@ -1,8 +1,14 @@
-import { apiDeleteCall, apiGetCall, apiPostCall } from "../apis/api";
+import {
+  apiDeleteCall,
+  apiGetCall,
+  apiPostCall,
+  apiPutCall
+} from "../apis/api";
 import {
   ADD_FILES,
   DELETE_FILE,
   DELETE_LINK,
+  EDIT_LINK,
   GET_LINK_DETAILS,
   GET_SHARED_FILES,
   GET_USER_LINK_STATS
@@ -68,4 +74,10 @@ export const getUserLinkStats = user => dispatch => {
       dispatch({ type: GET_USER_LINK_STATS, payload: response.data });
     })
     .catch(error => dispatch(setError(getApiError(error))));
+};
+
+export const editLink = (linkID, link) => dispatch => {
+  return apiPutCall(`/link/edit/${linkID}`, link).then(() =>
+    dispatch({ type: EDIT_LINK, link: link, linkID: linkID })
+  );
 };

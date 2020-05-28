@@ -20,6 +20,7 @@ import {
   addFiles,
   deleteFile,
   deleteLink,
+  editLink,
   getLinkDetails
 } from "../../actions/fileshare";
 import { EditLinkForm } from "../../components/form/EditLinkForm";
@@ -86,7 +87,11 @@ const EditLinkPage = props => {
             </Card>
 
             <Card style={{ marginTop: "2%" }} title={"Edit Link"}>
-              <EditLinkForm />
+              <EditLinkForm
+                submitAction={props.editLink}
+                id={linkID}
+                link={link}
+              />
             </Card>
           </Col>
           <Col span={17} offset={1}>
@@ -184,5 +189,6 @@ export default connect(mapStateToProps, {
   getLinkDetails,
   deleteLink,
   deleteFile,
-  addFiles
+  addFiles,
+  editLink
 })(EditLinkPage);
