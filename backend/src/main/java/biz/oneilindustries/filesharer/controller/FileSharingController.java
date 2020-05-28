@@ -146,7 +146,8 @@ public class FileSharingController {
 
     @DeleteMapping("/file/delete/{fileID}")
     public ResponseEntity<HttpStatus> deleteFile(@PathVariable String fileID, Authentication user) {
-        linkService.deleteFile(fileID);
+        SharedFile deletedFile = linkService.deleteFile(fileID);
+        userService.decreaseUsedQuota(deletedFile.getSize(), user.getName());
 
         return ResponseEntity.ok(HttpStatus.OK);
     }

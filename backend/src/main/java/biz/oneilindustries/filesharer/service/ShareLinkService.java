@@ -173,7 +173,7 @@ public class ShareLinkService {
         linkRepository.save(link);
     }
 
-    public void deleteFile(String fileID) {
+    public SharedFile deleteFile(String fileID) {
         SharedFile file = checkFileLinkValidation(fileID);
         Link link = file.getLink();
 
@@ -183,6 +183,8 @@ public class ShareLinkService {
 
         deleteLocalFile(fileLocation);
         fileRepository.delete(file);
+
+        return file;
     }
 
     private void deleteLocalFile(String path) {
