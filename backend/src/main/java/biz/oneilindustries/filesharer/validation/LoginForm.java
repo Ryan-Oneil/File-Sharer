@@ -8,7 +8,7 @@ public class LoginForm {
 
     @NotNull
     @Size(min = 2, max = 30)
-    private String name;
+    private String username;
 
     @NotNull
     private String password;
@@ -17,8 +17,8 @@ public class LoginForm {
     @Email
     private String email;
 
-    public LoginForm(@NotNull @Size(min = 2, max = 30) String name, @NotNull String password, @NotNull String email) {
-        this.name = name;
+    public LoginForm(@NotNull @Size(min = 2, max = 30) String username, @NotNull String password, @NotNull String email) {
+        this.username = username;
         this.password = password;
         this.email = email;
     }
@@ -26,12 +26,12 @@ public class LoginForm {
     public LoginForm() {
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {

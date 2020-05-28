@@ -5,11 +5,13 @@ import static biz.oneilindustries.filesharer.AppConfig.FRONT_END_URL;
 import biz.oneilindustries.filesharer.dto.QuotaDTO;
 import biz.oneilindustries.filesharer.entity.PasswordResetToken;
 import biz.oneilindustries.filesharer.entity.User;
+import biz.oneilindustries.filesharer.entity.UserDTO;
 import biz.oneilindustries.filesharer.entity.VerificationToken;
 import biz.oneilindustries.filesharer.eventlisteners.OnRegistrationCompleteEvent;
 import biz.oneilindustries.filesharer.service.EmailSender;
 import biz.oneilindustries.filesharer.service.UserService;
 import biz.oneilindustries.filesharer.validation.LoginForm;
+import biz.oneilindustries.filesharer.validation.UpdatedUser;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -21,9 +23,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -43,18 +45,16 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity registerUser(@RequestBody @Valid LoginForm loginForm, HttpServletRequest request) {
-        Optional<User> user = userService.getUser(loginForm.getName());
+        Optional<User> user = userService.getUser(loginForm.getUsername());
 
         if (user.isPresent()) {
             return ResponseEntity.badRequest().body("An account with this username already exists");
         }
-
         user = userService.getUserByEmail(loginForm.getEmail());
 
         if (user.isPresent()) {
             return ResponseEntity.badRequest().body("An account with this email already exists");
         }
-
         User newUser = userService.registerUser(loginForm);
 
         eventPublisher.publishEvent(new OnRegistrationCompleteEvent
@@ -86,13 +86,14 @@ public class UserController {
         }
         //Will generate a new token or send a previously generated one if exists and not expired
         String token = userService.generateResetToken(user.get());
-        emailSender.sendSimpleEmail(user.get().getEmail(),"Password Reset","Reset Password Link " + FRONT_END_URL + "/resetPassword/" + token,"Oneil-Industries",null);
+        emailSender.sendSimpleEmail(user.get().getEmail(),"Password Reset","Reset Password Link " + FRONT_END_URL
+            + "/confirmPassword/" + token,"Oneil-Industries",null);
 
         return ResponseEntity.ok("Password reset email has been sent");
     }
 
     @PostMapping("/newPassword/{token}")
-    public ResponseEntity setNewPassword(@PathVariable String token, @RequestParam String password) {
+    public ResponseEntity setNewPassword(@PathVariable String token, @RequestBody UpdatedUser updatedUser) {
         PasswordResetToken passwordResetToken = userService.validatePasswordResetToken(token);
         Optional<User> user = Optional.ofNullable(passwordResetToken.getUsername());
 
@@ -100,7 +101,7 @@ public class UserController {
             return ResponseEntity.badRequest().body("Invalid Password Reset Token");
         }
         userService.deletePasswordResetToken(passwordResetToken);
-        userService.changeUserPassword(user.get(), password);
+        userService.changeUserPassword(user.get(), updatedUser.getPassword());
 
         return ResponseEntity.ok("Password has been changed");
     }
@@ -108,5 +109,17 @@ public class UserController {
     @GetMapping("/{username}/quota")
     public ResponseEntity<QuotaDTO> getRemainingQuota(@PathVariable String username, Authentication user) {
         return ResponseEntity.ok(userService.quotaToDTO(userService.getUserQuota(username)));
+    }
+
+    @GetMapping("/{username}/details")
+    public ResponseEntity<UserDTO> getUserDetails(@PathVariable String username, Authentication user) {
+        return ResponseEntity.ok(userService.userToDTO(userService.checkUserExists(username)));
+    }
+
+    @PutMapping("/{username}/details/update")
+    public ResponseEntity<HttpStatus> updateUserDetails(@PathVariable String username, Authentication user, @RequestBody UpdatedUser updatedUser) {
+        userService.updateUser(updatedUser, username);
+
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 }

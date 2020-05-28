@@ -1,6 +1,7 @@
 package biz.oneilindustries.filesharer.service;
 
 import biz.oneilindustries.filesharer.dto.QuotaDTO;
+import biz.oneilindustries.filesharer.entity.UserDTO;
 import biz.oneilindustries.filesharer.exception.TokenException;
 import biz.oneilindustries.filesharer.repository.QuotaRepository;
 import biz.oneilindustries.filesharer.repository.ResetPasswordTokenRepository;
@@ -70,11 +71,11 @@ public class UserService {
 
     public User registerUser(LoginForm loginForm) {
 
-        if (!loginForm.getName().matches(USERNAME_REGEX)) {
+        if (!loginForm.getUsername().matches(USERNAME_REGEX)) {
             throw new UserException("Username may only contain a-Z . _");
         }
         String encryptedPassword = passwordEncoder.encode(loginForm.getPassword());
-        String username = loginForm.getName();
+        String username = loginForm.getUsername();
 
         User user = new User(username.toLowerCase(), encryptedPassword,false, loginForm.getEmail(), "ROLE_UNREGISTERED");
 
@@ -142,7 +143,7 @@ public class UserService {
     }
 
     public String generateResetToken(User user) {
-        Optional<PasswordResetToken> passwordResetToken = resetPasswordTokenRepository.getByUsername(user.getUsername());
+        Optional<PasswordResetToken> passwordResetToken = resetPasswordTokenRepository.getByUsername(user);
 
         if (passwordResetToken.isPresent()) {
             if (!isExpired(passwordResetToken.get().getExpiryDate())) {
@@ -246,5 +247,9 @@ public class UserService {
 
     public QuotaDTO quotaToDTO(Quota quota) {
         return new QuotaDTO(quota.getUsed(), quota.getMax(), quota.isIgnoreQuota());
+    }
+
+    public UserDTO userToDTO(User user) {
+        return new UserDTO(user.getUsername(), user.getEmail(), user.getRole(), user.getEnabled());
     }
 }

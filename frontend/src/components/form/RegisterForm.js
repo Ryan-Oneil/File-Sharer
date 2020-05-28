@@ -2,23 +2,24 @@ import React from "react";
 import { Field, Formik } from "formik";
 import { InputWithErrors } from "./index";
 import { Alert, Button } from "antd";
-import { registerUser } from "../../actions";
-import { connect } from "react-redux";
 import { getApiError } from "../../helpers";
 import MailOutlined from "@ant-design/icons/lib/icons/MailOutlined";
 import LockOutlined from "@ant-design/icons/lib/icons/LockOutlined";
 import UserOutlined from "@ant-design/icons/lib/icons/UserOutlined";
+import { registerUser } from "../../actions";
 
-const RegisterForm = props => {
+export default () => {
   const onSubmit = (formValues, { setStatus }) => {
     const creds = {
       username: formValues.username.trim(),
       password: formValues.password.trim(),
       email: formValues.email.trim()
     };
-    return props.registerUser(creds).catch(error => {
-      setStatus(getApiError(error));
-    });
+    return registerUser(creds)
+      .then(response => setStatus({ msg: response.data, type: "success" }))
+      .catch(error => {
+        setStatus({ msg: getApiError(error), type: "error" });
+      });
   };
 
   return (
@@ -87,9 +88,8 @@ const RegisterForm = props => {
             </Button>
             {status && (
               <Alert
-                message="Register Error"
-                description={status}
-                type="error"
+                message={status.msg}
+                type={status.type}
                 closable
                 showIcon
                 onClose={() => setStatus("")}
@@ -119,4 +119,3 @@ const validate = values => {
   }
   return errors;
 };
-export default connect(null, { registerUser })(RegisterForm);

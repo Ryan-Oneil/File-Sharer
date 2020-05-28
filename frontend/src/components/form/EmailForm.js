@@ -2,17 +2,18 @@ import React from "react";
 import { Field, Formik } from "formik";
 import { InputWithErrors } from "./index";
 import { Alert, Button } from "antd";
-import { resetPassword } from "../../actions";
-import { connect } from "react-redux";
 import { getApiError } from "../../helpers";
 
 import MailOutlined from "@ant-design/icons/lib/icons/MailOutlined";
 
-const EmailForm = props => {
+export default props => {
   const onSubmit = (formValues, { setStatus }) => {
-    return props.resetPassword(formValues.email.trim()).catch(error => {
-      setStatus(getApiError(error));
-    });
+    return props
+      .action(formValues)
+      .then(response => setStatus({ msg: response.data, type: "success" }))
+      .catch(error => {
+        setStatus({ msg: getApiError(error), type: "error" });
+      });
   };
 
   return (
@@ -54,9 +55,8 @@ const EmailForm = props => {
             </Button>
             {status && (
               <Alert
-                message="Email Error"
-                description={status}
-                type="error"
+                message={status.msg}
+                type={status.type}
                 closable
                 showIcon
                 onClose={() => setStatus("")}
@@ -77,4 +77,3 @@ const validate = values => {
   }
   return errors;
 };
-export default connect(null, { resetPassword })(EmailForm);

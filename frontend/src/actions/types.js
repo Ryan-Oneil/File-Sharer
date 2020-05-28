@@ -2,10 +2,6 @@ export const LOGIN_REQUEST = "LOGIN_REQUEST";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGOUT_REQUEST = "LOGOUT_REQUEST";
 export const LOGOUT_SUCCESS = "LOGOUT_SUCCESS";
-export const REGISTER_FAIL = "REGISTER_FAIL";
-export const REGISTER_SUCCESS = "REGISTER_SUCCESS";
-export const RESET_PASSWORD_SENT = "RESET_PASSWORD_SENT";
-export const NEW_PASSWORD_SENT = "NEW_PASSWORD_SENT";
 
 //Global errors
 export const SET_ERROR = "SET_ERROR";
@@ -15,6 +11,8 @@ export const DISABLE_ERRORS = "DISABLE_ERRORS";
 //Users
 export const GET_USER_STATS = "GET_USER_STATS";
 export const GET_QUOTA_STATS = "GET_QUOTA_STATS";
+export const GET_USER_DETAILS = "GET_USER_DETAILS";
+export const CHANGE_USER_EMAIL = "CHANGE_USER_EMAIL";
 
 //File sharer
 export const GET_SHARED_FILES = "GET_SHARED_FILES";

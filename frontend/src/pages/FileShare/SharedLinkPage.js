@@ -79,6 +79,7 @@ const Page = props => {
                   onClick={() => {
                     window.open(`${BASE_URL}/download/${id}`, "_blank");
                   }}
+                  disabled={link.files.length < 1}
                 >
                   Download All
                 </Button>

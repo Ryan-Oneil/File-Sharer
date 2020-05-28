@@ -3,13 +3,11 @@ import { getApiError } from "../../helpers";
 import { Field, Formik } from "formik";
 import { InputWithErrors } from "./index";
 import { Alert, Button } from "antd";
-import { connect } from "react-redux";
-import { changePassword } from "../../actions";
 import LockOutlined from "@ant-design/icons/lib/icons/LockOutlined";
 
-const ChangePasswordForm = props => {
+export default props => {
   const onSubmit = (formValues, { setStatus }) => {
-    return props.changePassword(formValues.password.trim()).catch(error => {
+    return props.action(formValues).catch(error => {
       setStatus(getApiError(error));
     });
   };
@@ -76,4 +74,3 @@ const validate = values => {
   }
   return errors;
 };
-export default connect(null, { changePassword })(ChangePasswordForm);

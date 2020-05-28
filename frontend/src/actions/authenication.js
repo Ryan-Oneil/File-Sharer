@@ -2,10 +2,7 @@ import {
   LOGIN_REQUEST,
   LOGIN_SUCCESS,
   LOGOUT_REQUEST,
-  LOGOUT_SUCCESS,
-  NEW_PASSWORD_SENT,
-  REGISTER_SUCCESS,
-  RESET_PASSWORD_SENT
+  LOGOUT_SUCCESS
 } from "./types";
 import { apiPostCall, BASE_URL } from "../apis/api";
 
@@ -49,10 +46,8 @@ export const loginUser = creds => dispatch => {
   });
 };
 
-export const registerUser = creds => dispatch => {
-  return apiPostCall(BASE_URL + "/user/register", creds).then(response => {
-    dispatch({ type: REGISTER_SUCCESS, message: response.data });
-  });
+export const registerUser = creds => {
+  return apiPostCall(BASE_URL + "/user/register", creds);
 };
 
 export const logoutUser = () => {
@@ -64,26 +59,12 @@ export const logoutUser = () => {
   };
 };
 
-export const resetPassword = email => dispatch => {
-  return apiPostCall(BASE_URL + "/user/forgotPassword/" + email).then(
-    response => {
-      dispatch({ type: RESET_PASSWORD_SENT, message: response.data });
-    }
-  );
+export const resetPassword = value => {
+  return apiPostCall(BASE_URL + "/user/forgotPassword/" + value.email);
 };
 
-export const changePassword = (token, password) => dispatch => {
-  const options = {
-    params: { password: password }
-  };
-
-  return apiPostCall(
-    BASE_URL + "/user/newPassword/" + token,
-    null,
-    options
-  ).then(response => {
-    dispatch({ type: NEW_PASSWORD_SENT, message: response.data });
-  });
+export const changePassword = (token, value) => {
+  return apiPostCall(BASE_URL + "/user/newPassword/" + token, value);
 };
 
 export const isTokenExpired = token => {

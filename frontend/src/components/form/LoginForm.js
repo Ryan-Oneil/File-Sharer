@@ -5,8 +5,9 @@ import { Alert, Button } from "antd";
 import { loginUser } from "../../actions";
 import { connect } from "react-redux";
 import { getApiError } from "../../helpers";
-import Icon from "antd/lib/icon";
 import { Link } from "react-router-dom";
+import UserOutlined from "@ant-design/icons/lib/icons/UserOutlined";
+import LockOutlined from "@ant-design/icons/lib/icons/LockOutlined";
 
 const LoginForm = props => {
   const onSubmit = (formValues, { setStatus }) => {
@@ -45,7 +46,7 @@ const LoginForm = props => {
               as={InputWithErrors}
               type="text"
               placeholder="Username"
-              prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+              prefix={<UserOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
               error={errors.username}
             />
             <Field
@@ -53,7 +54,7 @@ const LoginForm = props => {
               as={InputWithErrors}
               type="password"
               placeholder="Password"
-              prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+              prefix={<LockOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
               error={errors.password}
             />
             <Link to="/resetPassword" style={{ float: "right" }}>

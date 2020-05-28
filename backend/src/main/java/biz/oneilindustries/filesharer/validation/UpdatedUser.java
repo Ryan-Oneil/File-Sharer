@@ -1,22 +1,14 @@
 package biz.oneilindustries.filesharer.validation;
 
-import javax.validation.constraints.NotNull;
-
 public class UpdatedUser {
 
-    @NotNull
     private String username;
-
     private String password;
-
-    @NotNull
     private String email;
-
     private String role;
-
     private Boolean enabled;
 
-    public UpdatedUser(@NotNull String username, String password, @NotNull String email, String role, Boolean enabled) {
+    public UpdatedUser(String username, String password, String email, String role, Boolean enabled) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -24,7 +16,7 @@ public class UpdatedUser {
         this.enabled = enabled;
     }
 
-    public UpdatedUser(@NotNull String username, @NotNull String email, String role, Boolean enabled) {
+    public UpdatedUser(String username, String email, String role, Boolean enabled) {
         this.username = username;
         this.email = email;
         this.role = role;

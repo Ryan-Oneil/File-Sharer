@@ -1,12 +1,4 @@
-import {
-  LOGIN_REQUEST,
-  LOGIN_SUCCESS,
-  LOGOUT_SUCCESS,
-  REGISTER_SUCCESS,
-  REGISTER_FAIL,
-  RESET_PASSWORD_SENT,
-  NEW_PASSWORD_SENT
-} from "../actions/types";
+import { LOGIN_REQUEST, LOGIN_SUCCESS, LOGOUT_SUCCESS } from "../actions/types";
 import { decodeJWT, isTokenExpired } from "../actions";
 
 export default function auth(
@@ -33,33 +25,6 @@ export default function auth(
         isAuthenticated: false,
         user: ""
       });
-    case REGISTER_SUCCESS: {
-      return {
-        ...state,
-        isRegistered: true,
-        message: action.message,
-        errorMessage: ""
-      };
-    }
-    case REGISTER_FAIL: {
-      return { ...state, errorMessage: action.errorMessage, message: "" };
-    }
-    case RESET_PASSWORD_SENT: {
-      return {
-        ...state,
-        hasSentResetEmail: true,
-        message: action.message,
-        errorMessage: ""
-      };
-    }
-    case NEW_PASSWORD_SENT: {
-      return {
-        ...state,
-        message: action.message,
-        errorMessage: "",
-        passwordReset: true
-      };
-    }
     default:
       return state;
   }

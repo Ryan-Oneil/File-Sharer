@@ -10,6 +10,8 @@ import Register from "../pages/Auth/Register";
 import ResetPassword from "../pages/Auth/ResetPassword";
 import PublicRoute from "./PublicRoute";
 import Home from "../pages/Home";
+import ChangePassword from "../pages/Auth/ChangePassword";
+import EmailConfirmation from "../pages/Auth/EmailConfirmation";
 
 class ClientApp extends React.Component {
   render() {
@@ -23,8 +25,22 @@ class ClientApp extends React.Component {
           <PublicRoute path="/register">
             <Route exact path="/register" component={Register} />
           </PublicRoute>
+          <PublicRoute path="/confirmEmail/:token">
+            <Route
+              exact
+              path="/confirmEmail/:token"
+              component={EmailConfirmation}
+            />
+          </PublicRoute>
           <PublicRoute path="/resetPassword">
             <Route exact path="/resetPassword" component={ResetPassword} />
+          </PublicRoute>
+          <PublicRoute path="/changePassword/:token">
+            <Route
+              exact
+              path="/changePassword/:token"
+              component={ChangePassword}
+            />
           </PublicRoute>
           <Route path="/shared/:id" component={SharedLinkPage} />
           <PrivateRoute path="/dashboard">
