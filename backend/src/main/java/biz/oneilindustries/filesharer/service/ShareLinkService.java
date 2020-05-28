@@ -6,12 +6,14 @@ import biz.oneilindustries.RandomIDGen;
 import biz.oneilindustries.filesharer.dto.FileDTO;
 import biz.oneilindustries.filesharer.dto.LinkDTO;
 import biz.oneilindustries.filesharer.entity.Link;
+import biz.oneilindustries.filesharer.entity.LinkView;
 import biz.oneilindustries.filesharer.entity.SharedFile;
 import biz.oneilindustries.filesharer.entity.User;
 import biz.oneilindustries.filesharer.exception.LinkException;
 import biz.oneilindustries.filesharer.exception.ResourceNotFoundException;
 import biz.oneilindustries.filesharer.repository.FileRepository;
 import biz.oneilindustries.filesharer.repository.LinkRepository;
+import biz.oneilindustries.filesharer.repository.LinkViewRepository;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,12 +38,15 @@ public class ShareLinkService {
 
     private final LinkRepository linkRepository;
     private final FileRepository fileRepository;
+    private final LinkViewRepository viewRepository;
+
     private static final Logger logger = LogManager.getLogger(ShareLinkService.class);
     private static final int UUID_LENGTH = 16;
 
-    public ShareLinkService(LinkRepository linkRepository, FileRepository fileRepository) {
+    public ShareLinkService(LinkRepository linkRepository, FileRepository fileRepository, LinkViewRepository viewRepository) {
         this.linkRepository = linkRepository;
         this.fileRepository = fileRepository;
+        this.viewRepository = viewRepository;
     }
 
     public Link generateShareLink(User user, String expires, String title, List<File> files) throws ParseException {
@@ -292,6 +298,19 @@ public class ShareLinkService {
         stats.put("recentShared", recentLinks);
 
         return stats;
+    }
+
+    @Async
+    public void registerLinkView(Link link, String viewerIP) {
+        Optional<LinkView> wasViewed = viewRepository.getFirstByIpAndLink(viewerIP, link);
+
+        if (!wasViewed.isPresent()) {
+            LinkView view = new LinkView(viewerIP, link);
+            viewRepository.save(view);
+
+            link.setViews(link.getViews() + 1);
+            linkRepository.save(link);
+        }
     }
 
     public List<LinkDTO> linksToDTO(List<Link> links) {

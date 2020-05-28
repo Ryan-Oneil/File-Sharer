@@ -70,11 +70,13 @@ public class FileSharingController {
     }
 
     @GetMapping("/info/{link}")
-    public ResponseEntity<LinkDTO> viewLink(@PathVariable String link) {
+    public ResponseEntity<LinkDTO> viewLink(@PathVariable String link, HttpServletRequest request) {
         Link sharedLink = linkService.getLinkFileWithValidation(link);
 
         List<FileDTO> files = linkService.filesToDTO(sharedLink.getFiles());
         LinkDTO linkDTO = linkService.linkToDTO(sharedLink, files);
+
+        linkService.registerLinkView(sharedLink, request.getRemoteAddr());
 
         return ResponseEntity.ok(linkDTO);
     }

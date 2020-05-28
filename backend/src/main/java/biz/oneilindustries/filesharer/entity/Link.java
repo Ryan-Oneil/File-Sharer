@@ -30,11 +30,14 @@ public class Link {
     @Column(name = "creation_date")
     private Date creationDate;
 
+    private long size = 0;
+    private long views = 0;
+
     @OneToMany(mappedBy = "link", orphanRemoval = true)
     private List<SharedFile> files;
 
-    private long size = 0;
-    private long views = 0;
+    @OneToMany(mappedBy = "link", orphanRemoval = true)
+    private List<LinkView> linkViews;
 
     public Link() {
     }
@@ -102,5 +105,9 @@ public class Link {
 
     public long getViews() {
         return views;
+    }
+
+    public List<LinkView> getLinkViews() {
+        return linkViews;
     }
 }
