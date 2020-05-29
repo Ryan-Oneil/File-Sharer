@@ -70,10 +70,11 @@ const LinkForm = props => {
 export const EditLinkForm = withFormik({
   mapPropsToValues: props => ({
     title: props.link.title,
-    expires: props.link.expiryDatetime
+    expires: moment(props.link.expiryDatetime)
   }),
   validate: values => {
     const errors = {};
+
     if (values.title && values.title.length > 255) {
       errors.title = "Max length is 255 characters";
     }

@@ -1,49 +1,31 @@
-import React, { useState } from "react";
+import React from "react";
 import { Avatar, Button, Card, Col, List, Row } from "antd";
 import StatisticCard from "../../components/Stats/StatisticCard";
 import { displayBytesInReadableForm } from "../../helpers";
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
-import { ShareLinkForm } from "../../components/form/ShareLinkForm";
 import Uploader from "../../components/Uploader";
+import { connect } from "react-redux";
+import { uploaderRemoveFile } from "../../actions/fileshare";
+import ShareLinkForm from "../../components/form/ShareLinkForm";
 
-export default props => {
-  const [files, setFiles] = useState([]);
-  const [totalSize, setTotalSize] = useState(0);
-
-  const removeFile = file => {
-    const index = files.indexOf(file);
-    const modifiedList = files.slice();
-
-    modifiedList.splice(index, 1);
-    setFiles(modifiedList);
-    setTotalSize(prevState => prevState - file.size);
-  };
-
-  const resetFiles = () => {
-    setFiles([]);
-    setTotalSize(0);
-  };
+const UploadPage = props => {
+  const { size, files } = props.fileSharer.linkUpload;
 
   return (
     <>
       <Row gutter={[32, 32]} type="flex">
         <Col span={8}>
-          <ShareLinkForm files={files} resetFiles={resetFiles} />
+          <ShareLinkForm />
         </Col>
         <Col span={16}>
-          <Uploader
-            setFiles={setFiles}
-            setTotalSize={setTotalSize}
-            showUploadList={false}
-            files={files}
-          />
+          <Uploader showUploadList={false} />
         </Col>
       </Row>
       <Row gutter={[32, 32]} type="flex">
         <Col span={8}>
           <StatisticCard
             title={"Total Size"}
-            value={displayBytesInReadableForm(totalSize)}
+            value={displayBytesInReadableForm(size)}
           />
         </Col>
         <Col span={16}>
@@ -58,7 +40,9 @@ export default props => {
                       type="primary"
                       shape="circle"
                       icon={<DeleteOutlined />}
-                      onClick={() => removeFile(item)}
+                      onClick={() => {
+                        props.uploaderRemoveFile(item);
+                      }}
                     />
                   ]}
                 >
@@ -78,3 +62,8 @@ export default props => {
     </>
   );
 };
+const mapStateToProp = state => {
+  return { fileSharer: state.fileSharer };
+};
+
+export default connect(mapStateToProp, { uploaderRemoveFile })(UploadPage);

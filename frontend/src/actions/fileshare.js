@@ -11,7 +11,11 @@ import {
   EDIT_LINK,
   GET_LINK_DETAILS,
   GET_SHARED_FILES,
-  GET_USER_LINK_STATS
+  GET_USER_LINK_STATS,
+  UPLOADER_ADD_FILE,
+  UPLOADER_REMOVE_FILE,
+  UPLOADER_RESET,
+  UPLOADER_SET_LIMIT_REACHED
 } from "./types";
 import { setError } from "./errors";
 import { getApiError } from "../helpers";
@@ -60,7 +64,8 @@ export const addFiles = (files, linkID) => dispatch => {
 
 export const uploadFiles = (endpoint, files, params = {}) => {
   let postData = new FormData();
-  files.forEach(file => postData.append("file", file, file.name));
+
+  files.forEach(file => postData.append("file[]", file, file.name));
 
   let options = {
     params: params
@@ -80,4 +85,19 @@ export const editLink = (linkID, link) => dispatch => {
   return apiPutCall(`/link/edit/${linkID}`, link).then(() =>
     dispatch({ type: EDIT_LINK, link: link, linkID: linkID })
   );
+};
+
+export const uploaderAddFile = file => dispatch => {
+  dispatch({ type: UPLOADER_ADD_FILE, file: file });
+};
+
+export const uploaderRemoveFile = file => dispatch => {
+  dispatch({ type: UPLOADER_REMOVE_FILE, file: file });
+};
+
+export const setHasReachedLimit = reachedLimit => dispatch => {
+  dispatch({ type: UPLOADER_SET_LIMIT_REACHED, hasReach: reachedLimit });
+};
+export const resetUploader = () => dispatch => {
+  dispatch({ type: UPLOADER_RESET });
 };

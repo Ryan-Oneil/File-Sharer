@@ -4,9 +4,11 @@ import { ErrorDisplay, InputWithErrors } from "./index";
 import { Alert, Button, Card, DatePicker } from "antd";
 import moment from "moment";
 import { getApiError, getDateWithAddedDays } from "../../helpers";
-import { uploadFiles } from "../../actions/fileshare";
+import { resetUploader, uploadFiles } from "../../actions/fileshare";
+import { connect } from "react-redux";
 
 const LinkForm = props => {
+  const { files, reachedLimit } = props.fileSharer.linkUpload;
   const {
     isValid,
     isSubmitting,
@@ -52,7 +54,8 @@ const LinkForm = props => {
           disabled={
             !isValid ||
             isSubmitting ||
-            (props.files && props.files.length === 0)
+            (files && files.length === 0) ||
+            reachedLimit
           }
           style={{ marginTop: 24 }}
         >
@@ -67,12 +70,20 @@ const LinkForm = props => {
             onClose={() => setStatus("")}
           />
         )}
+        {reachedLimit && (
+          <Alert
+            message="Files exceed your remaining storage quota"
+            type="warning"
+            closable
+            showIcon
+          />
+        )}
       </form>
     </Card>
   );
 };
 
-export const ShareLinkForm = withFormik({
+const ShareLinkForm = withFormik({
   mapPropsToValues: props => ({
     title: props.title ? props.title : "",
     expires: props.expires ? props.expires : moment(getDateWithAddedDays(14))
@@ -91,17 +102,24 @@ export const ShareLinkForm = withFormik({
     return errors;
   },
   handleSubmit: (values, { setStatus, resetForm, props }) => {
+    const { files } = props.fileSharer.linkUpload;
     let params = {
       title: values.title,
       expires: values.expires.toISOString().replace(/\.[0-9]{3}/, "")
     };
-    return uploadFiles("/share", props.files, params)
+    return uploadFiles("/share", files, params)
       .then(response => {
         resetForm();
         setStatus({ msg: response.data, type: "success" });
-        props.resetFiles();
+        props.resetUploader();
       })
       .catch(error => setStatus({ msg: getApiError(error), type: "error" }));
   },
   validateOnMount: true
 })(LinkForm);
+
+const mapStateToProp = state => {
+  return { fileSharer: state.fileSharer };
+};
+
+export default connect(mapStateToProp, { resetUploader })(ShareLinkForm);

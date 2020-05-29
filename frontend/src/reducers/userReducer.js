@@ -8,7 +8,8 @@ import {
 export default (
   state = {
     details: { name: "", email: "", role: "" },
-    storageQuota: { used: 0, max: 0 }
+    //Default quota given is 25gb
+    storageQuota: { used: 0, max: 25 }
   },
   action
 ) => {

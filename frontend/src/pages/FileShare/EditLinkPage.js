@@ -21,7 +21,8 @@ import {
   deleteFile,
   deleteLink,
   editLink,
-  getLinkDetails
+  getLinkDetails,
+  resetUploader
 } from "../../actions/fileshare";
 import { EditLinkForm } from "../../components/form/EditLinkForm";
 import FileAddOutlined from "@ant-design/icons/lib/icons/FileAddOutlined";
@@ -32,9 +33,7 @@ import Uploader from "../../components/Uploader";
 const EditLinkPage = props => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [files, setFiles] = useState([]);
-  const [totalSize, setTotalSize] = useState(0);
-
+  const { files } = props.fileSharer.linkUpload;
   const { linkID } = props.match.params;
   const { activeFiles } = props.fileSharer;
 
@@ -53,8 +52,7 @@ const EditLinkPage = props => {
   };
 
   const resetFiles = () => {
-    setFiles([]);
-    setTotalSize(0);
+    props.resetUploader();
   };
 
   const uploadNewFiles = () => {
@@ -163,22 +161,20 @@ const EditLinkPage = props => {
           </Col>
         </Row>
       )}
-      <Modal
-        title="Upload New Files"
-        visible={showUploadModal}
-        onOk={uploadNewFiles}
-        confirmLoading={uploading}
-        onCancel={() => {
-          resetFiles();
-          setShowUploadModal(false);
-        }}
-      >
-        <Uploader
-          setFiles={setFiles}
-          setTotalSize={setTotalSize}
-          files={files}
-        />
-      </Modal>
+      {showUploadModal && (
+        <Modal
+          title="Upload New Files"
+          visible={showUploadModal}
+          onOk={uploadNewFiles}
+          confirmLoading={uploading}
+          onCancel={() => {
+            resetFiles();
+            setShowUploadModal(false);
+          }}
+        >
+          <Uploader />
+        </Modal>
+      )}
     </>
   );
 };
@@ -190,5 +186,6 @@ export default connect(mapStateToProps, {
   deleteLink,
   deleteFile,
   addFiles,
-  editLink
+  editLink,
+  resetUploader
 })(EditLinkPage);

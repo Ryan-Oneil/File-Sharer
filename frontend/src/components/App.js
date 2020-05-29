@@ -8,7 +8,6 @@ class App extends React.Component {
   render() {
     const { error } = this.props.globalErrors;
 
-    console.log(error);
     return (
       <>
         <ClientApp />
