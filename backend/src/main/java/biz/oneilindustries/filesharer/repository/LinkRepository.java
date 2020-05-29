@@ -12,24 +12,24 @@ import org.springframework.stereotype.Repository;
 public interface  LinkRepository extends CrudRepository<Link, String> {
     Optional<Link> findById(String id);
 
-    @Query("select l from Link l where l.creator.username = :username ")
+    @Query("select l from Link l where l.creator.username = ?1 ")
     List<Link> getAllByCreator(String username);
 
     @EntityGraph(attributePaths  = {"files"})
     Optional<Link> getById(String id);
 
-    @Query("select l from Link l where l.creator.username = :username and l.expiryDatetime < CURRENT_TIMESTAMP ")
+    @Query("select l from Link l where l.creator.username = ?1 and l.expiryDatetime < CURRENT_TIMESTAMP ")
     List<Link> getAllExpiredByCreator(String username);
 
-    @Query("select l from Link l where l.creator.username = :username and l.expiryDatetime > CURRENT_TIMESTAMP ")
+    @Query("select l from Link l where l.creator.username = ?1 and l.expiryDatetime > CURRENT_TIMESTAMP ")
     List<Link> getAllActiveByCreator(String username);
 
     List<Link> findTop5ByCreator_UsernameOrderByCreationDateDesc(String username);
 
-    @Query("select count(l) from Link l where l.creator.username = :username")
+    @Query("select count(l) from Link l where l.creator.username = ?1")
     int getUserLinkCount(String username);
 
-    @Query("select sum (l.views) from Link l where l.creator.username = :username")
+    @Query("select sum (l.views) from Link l where l.creator.username = ?1")
     long getUserTotalViews(String username);
 
     List<Link> findTop5ByCreator_UsernameOrderByViewsDesc(String username);

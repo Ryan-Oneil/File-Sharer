@@ -189,10 +189,10 @@ public class UserService {
             if (quota.isIgnoreQuota()) {
                 remaining.set(-1L);
             }else {
-                remaining.set((quota.getMax() * FileUtils.ONE_GB) - quota.getUsed());
+                long remainingAmount = (quota.getMax() * FileUtils.ONE_GB) - quota.getUsed();
+                remaining.set(Math.max(remainingAmount, 0));
             }
         });
-
         return remaining.get();
     }
 

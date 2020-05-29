@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import javax.imageio.ImageIO;
+import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.io.FileUtils;
-import org.apache.tomcat.util.http.fileupload.FileItemStream;
 import org.springframework.stereotype.Component;
 
 @Component

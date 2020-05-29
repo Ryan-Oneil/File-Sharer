@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import org.apache.tomcat.util.http.fileupload.FileUploadException;
+import org.apache.commons.fileupload.FileUploadException;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +53,7 @@ public class FileSharingController {
 
     @PostMapping("/share")
     public ResponseEntity<String> createShareLink(@Valid ShareLinkForm form, BindingResult result, HttpServletRequest request, Authentication username)
-        throws FileUploadException, ParseException, IOException {
+        throws ParseException, IOException, FileUploadException {
 
         if (result.hasErrors()) {
             throw new LinkException(result.getFieldErrors().get(0).getDefaultMessage());
@@ -86,7 +86,7 @@ public class FileSharingController {
     public void downloadFiles(@PathVariable String link, HttpServletResponse response) throws IOException {
         Link sharedLink = linkService.getLinkValidate(link);
 
-        String fileName = sharedLink.getTitle() != null ? sharedLink.getTitle() : sharedLink.getId();
+        String fileName = sharedLink.getTitle().isEmpty() ? sharedLink.getId() : sharedLink.getTitle();
 
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", String.format("attachment;filename=%s.zip", fileName));
@@ -111,9 +111,12 @@ public class FileSharingController {
         long remainingQuota = userService.getRemainingQuota(user.getUsername());
 
         List<File> uploadedFiles = systemFileService.handleFileUpload(request, remainingQuota,
-            linkService.getLinkDirectory(user.getUsername(), linkService.generateLinkUUID(7)), false);
+                linkService.getLinkDirectory(user.getUsername(), linkService.generateLinkUUID(7)), false);
 
         List<FileDTO> files = linkService.addFilesToLink(linkID, uploadedFiles);
+
+        long sizeOfFiles = files.stream().mapToLong(FileDTO::getSize).sum();
+        userService.incrementUsedQuota(sizeOfFiles, user.getUsername());
 
         return ResponseEntity.ok(files);
     }

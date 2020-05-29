@@ -15,12 +15,12 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.tomcat.util.http.fileupload.FileItemIterator;
-import org.apache.tomcat.util.http.fileupload.FileItemStream;
-import org.apache.tomcat.util.http.fileupload.FileUploadException;
-import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
@@ -32,9 +32,8 @@ public class SystemFileService {
     private static final Logger logger = LogManager.getLogger(ShareLinkService.class);
 
     public List<File> handleFileUpload(HttpServletRequest request, long uploadLimit, String destination, boolean generateRandomName)
-        throws FileUploadException, IOException {
+        throws IOException, FileUploadException {
         ArrayList<File> uploadedFiles = new ArrayList<>();
-
         ServletFileUpload upload = new ServletFileUpload();
         upload.setSizeMax(uploadLimit);
 

@@ -9,6 +9,7 @@ import biz.oneilindustries.filesharer.exception.UserException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import java.io.FileNotFoundException;
 import java.text.ParseException;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -72,6 +73,11 @@ public class ErrorPageControllerAdvice {
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .body(error.getMessage());
+    }
+
+    @ExceptionHandler(FileUploadException.class)
+    public ResponseEntity handleFileUploadException(FileUploadException ex) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
