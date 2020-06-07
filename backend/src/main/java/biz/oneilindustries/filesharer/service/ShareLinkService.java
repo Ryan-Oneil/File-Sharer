@@ -11,6 +11,7 @@ import biz.oneilindustries.filesharer.entity.SharedFile;
 import biz.oneilindustries.filesharer.entity.User;
 import biz.oneilindustries.filesharer.exception.LinkException;
 import biz.oneilindustries.filesharer.exception.ResourceNotFoundException;
+import biz.oneilindustries.filesharer.filecreater.FileHandler;
 import biz.oneilindustries.filesharer.repository.FileRepository;
 import biz.oneilindustries.filesharer.repository.LinkRepository;
 import biz.oneilindustries.filesharer.repository.LinkViewRepository;
@@ -266,6 +267,15 @@ public class ShareLinkService {
 
         files.forEach(file -> {
             try {
+                File newFile = new File(dest + "/" + file.getName());
+
+                //Renames the original file
+                if (newFile.exists()) {
+                    String newFileName = FileHandler.renameFile(file, dest).getName();
+                    File renamedFile = new File(originalParent.getAbsolutePath() + "/" + newFileName);
+                    file.renameTo(renamedFile);
+                    file = renamedFile;
+                }
                 FileUtils.moveFileToDirectory(file, destFolder, false);
             } catch (IOException e) {
                 logger.error(e.getMessage());

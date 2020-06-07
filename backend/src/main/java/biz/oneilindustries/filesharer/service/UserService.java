@@ -78,8 +78,10 @@ public class UserService {
         String username = loginForm.getUsername();
 
         User user = new User(username.toLowerCase(), encryptedPassword,false, loginForm.getEmail(), "ROLE_UNREGISTERED");
+        Quota quota = new Quota(username, 0, 25, false);
 
         saveUser(user);
+        quotaRepository.save(quota);
 
         return user;
     }

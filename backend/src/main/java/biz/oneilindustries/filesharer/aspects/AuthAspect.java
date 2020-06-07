@@ -59,7 +59,7 @@ public class AuthAspect {
 
         Link link = linkService.getLinkCheckPresence(linkID);
 
-        if (!link.getCreator().getUsername().equals(username)) {
+        if (!link.getCreator().getUsername().equalsIgnoreCase(username)) {
             throw new NotAuthorisedException("You don't have permission to do this");
         }
     }
@@ -73,7 +73,7 @@ public class AuthAspect {
 
         SharedFile file = linkService.checkFileLinkValidation(fileID);
 
-        if (!file.getLink().getCreator().getUsername().equals(username)) {
+        if (!file.getLink().getCreator().getUsername().equalsIgnoreCase(username)) {
             throw new NotAuthorisedException("You don't have permission to do this");
         }
     }
@@ -85,7 +85,7 @@ public class AuthAspect {
         String username = (String) args[0];
         String callingUser = ((Authentication)args[1]).getName();
 
-        if (!username.equals(callingUser)) {
+        if (!username.equalsIgnoreCase(callingUser)) {
             throw new NotAuthorisedException("You don't have permission to do this");
         }
     }
