@@ -338,8 +338,8 @@ public class ShareLinkService {
         return stats;
     }
 
-    public List<LinkDTO> getLinksPageable(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+    public List<LinkDTO> getLinksPageable(int page, int size, String attribute) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(attribute).descending());
 
         return linksToDTO(linkRepository.findAll(pageable).toList());
     }

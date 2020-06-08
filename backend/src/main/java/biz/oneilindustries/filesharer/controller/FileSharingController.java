@@ -182,8 +182,8 @@ public class FileSharingController {
     }
 
     @GetMapping("/admin/links")
-    public ResponseEntity<List<LinkDTO>> displayAllLinksFromRange(@RequestParam int page, @RequestParam int size) {
-        List<LinkDTO> links = linkService.getLinksPageable(page, size);
+    public ResponseEntity<List<LinkDTO>> displayAllLinksFromRange(@RequestParam int page, @RequestParam int size, @RequestParam String attribute) {
+        List<LinkDTO> links = linkService.getLinksPageable(page, size, attribute);
 
         return ResponseEntity.ok(links);
     }
