@@ -12,6 +12,7 @@ import PublicRoute from "./PublicRoute";
 import Home from "../pages/Home";
 import ChangePassword from "../pages/Auth/ChangePassword";
 import EmailConfirmation from "../pages/Auth/EmailConfirmation";
+import AdminRouting from "../pages/Admin/AdminRouting";
 
 class ClientApp extends React.Component {
   render() {
@@ -45,6 +46,9 @@ class ClientApp extends React.Component {
           <Route path="/shared/:id" component={SharedLinkPage} />
           <PrivateRoute path="/dashboard">
             <Route path="/dashboard" component={DashboardRouting} />
+          </PrivateRoute>
+          <PrivateRoute path="/admin">
+            <Route path="/admin" component={AdminRouting} />
           </PrivateRoute>
           <Route path="*">
             <NotFound />

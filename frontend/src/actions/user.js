@@ -1,5 +1,10 @@
 import { apiGetCall, apiPutCall } from "../apis/api";
-import { CHANGE_USER_EMAIL, GET_QUOTA_STATS, GET_USER_DETAILS } from "./types";
+import {
+  CHANGE_USER_EMAIL,
+  GET_QUOTA_STATS,
+  GET_TOTAL_USED_QUOTA,
+  GET_USER_DETAILS
+} from "./types";
 import { setError } from "./errors";
 import { getApiError } from "../helpers";
 
@@ -27,4 +32,12 @@ export const changeUserEmail = (username, value) => dispatch => {
 
 export const changeUserPassword = (username, password) => {
   return apiPutCall(`/user/${username}/details/update`, password);
+};
+
+export const getUsedStorage = () => dispatch => {
+  apiGetCall("/user/admin/users/quota/used")
+    .then(response =>
+      dispatch({ type: GET_TOTAL_USED_QUOTA, payload: response.data })
+    )
+    .catch(error => dispatch(setError(getApiError(error))));
 };

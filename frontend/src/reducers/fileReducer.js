@@ -3,8 +3,11 @@ import {
   DELETE_FILE,
   DELETE_LINK,
   EDIT_LINK,
+  GET_ADMIN_LINK_STATS,
   GET_LINK_DETAILS,
+  GET_POPULAR_LINKS,
   GET_SHARED_FILES,
+  GET_SHARED_FILES_PAGEABLE,
   GET_USER_LINK_STATS,
   UPLOADER_ADD_FILE,
   UPLOADER_REMOVE_FILE,
@@ -26,6 +29,13 @@ export default (
       files: [],
       size: 0,
       reachedLimit: false
+    },
+    adminStats: {
+      totalViews: 0,
+      totalLinks: 0,
+      mostViewed: [],
+      recentShared: [],
+      activeFiles: []
     }
   },
   action
@@ -135,6 +145,21 @@ export default (
       return {
         ...state,
         linkUpload: { size: 0, files: [], reachedLimit: false }
+      };
+    }
+    case GET_ADMIN_LINK_STATS: {
+      return { ...state, adminStats: action.payload };
+    }
+    case GET_SHARED_FILES_PAGEABLE: {
+      return {
+        ...state,
+        adminStats: { ...state.adminStats, activeFiles: action.payload }
+      };
+    }
+    case GET_POPULAR_LINKS: {
+      return {
+        ...state,
+        adminStats: { ...state.adminStats, mostViewed: action.payload }
       };
     }
     default: {

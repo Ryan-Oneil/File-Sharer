@@ -9,8 +9,11 @@ import {
   DELETE_FILE,
   DELETE_LINK,
   EDIT_LINK,
+  GET_ADMIN_LINK_STATS,
   GET_LINK_DETAILS,
+  GET_POPULAR_LINKS,
   GET_SHARED_FILES,
+  GET_SHARED_FILES_PAGEABLE,
   GET_USER_LINK_STATS,
   UPLOADER_ADD_FILE,
   UPLOADER_REMOVE_FILE,
@@ -100,4 +103,41 @@ export const setHasReachedLimit = reachedLimit => dispatch => {
 };
 export const resetUploader = () => dispatch => {
   dispatch({ type: UPLOADER_RESET });
+};
+
+export const getAdminLinkStats = () => dispatch => {
+  apiGetCall("/admin/link/stats")
+    .then(response =>
+      dispatch({ type: GET_ADMIN_LINK_STATS, payload: response.data })
+    )
+    .catch(error => dispatch(setError(getApiError(error))));
+};
+
+export const getAllLinksPageable = (page, size, sortAttribute) => dispatch => {
+  getLinksPageable("/admin/links", page, size, sortAttribute)
+    .then(response =>
+      dispatch({ type: GET_SHARED_FILES_PAGEABLE, payload: response.data })
+    )
+    .catch(error => dispatch(setError(getApiError(error))));
+};
+
+export const getPopularLinksPageable = (
+  page,
+  size,
+  sortAttribute
+) => dispatch => {
+  getLinksPageable("/admin/links", page, size, sortAttribute)
+    .then(response =>
+      dispatch({ type: GET_POPULAR_LINKS, payload: response.data })
+    )
+    .catch(error => dispatch(setError(getApiError(error))));
+};
+
+export const getLinksPageable = (endpoint, page, size, sortAttribute) => {
+  const params = new URLSearchParams();
+  params.append("page", page);
+  params.append("size", size);
+  params.append("attribute", sortAttribute);
+
+  return apiGetCall(endpoint, { params });
 };
