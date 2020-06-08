@@ -23,6 +23,11 @@
       <AppenderRef ref="FileShareDBLog" />
     </Logger>
 
+    <Logger name="biz.oneilindustries.filesharer.AppConfig" level="info"
+      additivity="false">
+      <AppenderRef ref="Console" />
+    </Logger>
+
     <Root level="info">
       <AppenderRef ref="Console" />
     </Root>
