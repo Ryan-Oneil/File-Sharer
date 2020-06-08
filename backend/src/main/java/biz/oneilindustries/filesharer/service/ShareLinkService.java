@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -323,6 +326,22 @@ public class ShareLinkService {
             link.setViews(link.getViews() + 1);
             linkRepository.save(link);
         }
+    }
+
+    public HashMap<String, Object> getAdminLinkStats() {
+        HashMap<String, Object> stats = new HashMap<>();
+
+        stats.put("totalLinks", linkRepository.getTotalLinks());
+        stats.put("totalViews", linkRepository.getTotalViews());
+        stats.put("totalFiles", fileRepository.getTotalFiles());
+
+        return stats;
+    }
+
+    public List<LinkDTO> getLinksPageable(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("creationDate").descending());
+
+        return linksToDTO(linkRepository.findAll(pageable).toList());
     }
 
     public List<LinkDTO> linksToDTO(List<Link> links) {

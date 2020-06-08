@@ -247,6 +247,10 @@ public class UserService {
         return userQuota.get();
     }
 
+    public long getTotalUsedQuota() {
+        return quotaRepository.getTotalUsed();
+    }
+
     public QuotaDTO quotaToDTO(Quota quota) {
         return new QuotaDTO(quota.getUsed(), quota.getMax(), quota.isIgnoreQuota());
     }

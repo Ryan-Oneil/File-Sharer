@@ -122,4 +122,10 @@ public class UserController {
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
+
+    //Admin related apis
+    @GetMapping("/admin/users/quota/used")
+    public ResponseEntity<Long> getUsedQuota() {
+        return ResponseEntity.ok(userService.getTotalUsedQuota());
+    }
 }

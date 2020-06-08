@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -169,5 +170,21 @@ public class FileSharingController {
         HashMap<String, Object> userStats = linkService.getUserStats(username);
 
         return ResponseEntity.ok(userStats);
+    }
+
+    //Admin related apis
+
+    @GetMapping("/admin/link/stats")
+    public ResponseEntity<HashMap<String, Object>> displayAdminLinkStats() {
+        HashMap<String, Object> adminStats = linkService.getAdminLinkStats();
+
+        return ResponseEntity.ok(adminStats);
+    }
+
+    @GetMapping("/admin/links")
+    public ResponseEntity<List<LinkDTO>> displayAllLinksFromRange(@RequestParam int page, @RequestParam int size) {
+        List<LinkDTO> links = linkService.getLinksPageable(page, size);
+
+        return ResponseEntity.ok(links);
     }
 }

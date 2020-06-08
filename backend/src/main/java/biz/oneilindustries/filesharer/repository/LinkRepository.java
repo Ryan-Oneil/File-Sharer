@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface  LinkRepository extends CrudRepository<Link, String> {
+public interface  LinkRepository extends PagingAndSortingRepository<Link, String> {
     Optional<Link> findById(String id);
 
     @Query("select l from Link l where l.creator.username = ?1 ")
@@ -33,4 +33,11 @@ public interface  LinkRepository extends CrudRepository<Link, String> {
     long getUserTotalViews(String username);
 
     List<Link> findTop5ByCreator_UsernameOrderByViewsDesc(String username);
+
+    @Query("select sum (l.views) from Link l")
+    long getTotalViews();
+
+    @Query("select count (l) from Link l")
+    long getTotalLinks();
+
 }
