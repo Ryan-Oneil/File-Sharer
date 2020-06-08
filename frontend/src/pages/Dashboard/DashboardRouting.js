@@ -10,16 +10,24 @@ import ManageFilesPage from "../FileShare/ManageFilesPage";
 import NavHeader from "../../components/SiteLayout/Header";
 import Profile from "../Profile";
 import EditLinkPage from "../FileShare/EditLinkPage";
+import DashboardOutlined from "@ant-design/icons/lib/icons/DashboardOutlined";
+import ShareAltOutlined from "@ant-design/icons/lib/icons/ShareAltOutlined";
+import FileOutlined from "@ant-design/icons/lib/icons/FileOutlined";
 
 class DashboardRouting extends React.Component {
   render() {
     const { match } = this.props;
     const { Sider, Content } = Layout;
+    const dashBoardLinks = [
+      { path: "", icon: <DashboardOutlined />, name: "Overview" },
+      { path: "/share", icon: <ShareAltOutlined />, name: "Share File" },
+      { path: "/files", icon: <FileOutlined />, name: "Files" }
+    ];
 
     return (
       <Layout style={{ height: "100vh" }}>
         <Sider breakpoint="lg" collapsedWidth="0">
-          <SideNav path={match.path} />
+          <SideNav path={match.path} links={dashBoardLinks} />
         </Sider>
         <Layout>
           <NavHeader />
