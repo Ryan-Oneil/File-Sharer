@@ -65,8 +65,8 @@ baseApi.interceptors.response.use(
   }
 );
 
-export const apiGetCall = async endpoint => {
-  return await baseApi.get(endpoint);
+export const apiGetCall = async (endpoint, options) => {
+  return await baseApi.get(endpoint, options);
 };
 
 export const apiPostCall = async (endpoint, data, options) => {
