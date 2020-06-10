@@ -1,7 +1,10 @@
 package biz.oneilindustries.filesharer.aspects;
 
+import static biz.oneilindustries.filesharer.AppConfig.ADMIN_ROLES;
+
 import biz.oneilindustries.filesharer.entity.Link;
 import biz.oneilindustries.filesharer.entity.SharedFile;
+import biz.oneilindustries.filesharer.entity.User;
 import biz.oneilindustries.filesharer.exception.NotAuthorisedException;
 import biz.oneilindustries.filesharer.service.ShareLinkService;
 import org.aspectj.lang.JoinPoint;
@@ -55,11 +58,11 @@ public class AuthAspect {
         Object[] args = joinPoint.getArgs();
 
         String linkID = (String) args[0];
-        String username = ((Authentication)args[1]).getName();
+        User user = (User) ((Authentication) args[1]).getPrincipal();
 
         Link link = linkService.getLinkCheckPresence(linkID);
 
-        if (!link.getCreator().getUsername().equalsIgnoreCase(username)) {
+        if (!link.getCreator().getUsername().equalsIgnoreCase(user.getUsername()) && !ADMIN_ROLES.contains(user.getRole())) {
             throw new NotAuthorisedException("You don't have permission to do this");
         }
     }
@@ -69,11 +72,11 @@ public class AuthAspect {
         Object[] args = joinPoint.getArgs();
 
         String fileID = (String) args[0];
-        String username = ((Authentication)args[1]).getName();
+        User user = (User) ((Authentication) args[1]).getPrincipal();
 
         SharedFile file = linkService.checkFileLinkValidation(fileID);
 
-        if (!file.getLink().getCreator().getUsername().equalsIgnoreCase(username)) {
+        if (!file.getLink().getCreator().getUsername().equalsIgnoreCase(user.getUsername()) && !ADMIN_ROLES.contains(user.getRole())) {
             throw new NotAuthorisedException("You don't have permission to do this");
         }
     }
@@ -82,10 +85,10 @@ public class AuthAspect {
     public void hasUserPermission(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
 
-        String username = (String) args[0];
-        String callingUser = ((Authentication)args[1]).getName();
+        User user = (User) ((Authentication) args[1]).getPrincipal();
+        String callingUser = user.getUsername();
 
-        if (!username.equalsIgnoreCase(callingUser)) {
+        if (!user.getUsername().equalsIgnoreCase(callingUser) && !ADMIN_ROLES.contains(user.getRole())) {
             throw new NotAuthorisedException("You don't have permission to do this");
         }
     }

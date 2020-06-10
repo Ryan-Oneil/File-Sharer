@@ -108,7 +108,7 @@ public class FileSharingController {
     public ResponseEntity<List<FileDTO>> addFilesToLink(@PathVariable String linkID, Authentication username, HttpServletRequest request)
         throws IOException, FileUploadException {
 
-        User user = (User) username.getPrincipal();
+        User user = linkService.getLinkFileWithValidation(linkID).getCreator();
         long remainingQuota = userService.getRemainingQuota(user.getUsername());
 
         List<File> uploadedFiles = systemFileService.handleFileUpload(request, remainingQuota,
