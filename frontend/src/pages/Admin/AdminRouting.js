@@ -7,13 +7,17 @@ import { Layout } from "antd";
 import Overview from "./Overview";
 import NavHeader from "../../components/SiteLayout/Header";
 import DashboardOutlined from "@ant-design/icons/lib/icons/DashboardOutlined";
+import ViewAllLinks from "./ViewAllLinks";
+import FileOutlined from "@ant-design/icons/lib/icons/FileOutlined";
+import EditLinkPage from "../FileShare/EditLinkPage";
 
 class AdminRouting extends React.Component {
   render() {
     const { match } = this.props;
     const { Sider, Content } = Layout;
     const adminLinks = [
-      { path: "/stats", icon: <DashboardOutlined />, name: "Stats" }
+      { path: "/stats", icon: <DashboardOutlined />, name: "Stats" },
+      { path: "/files", icon: <FileOutlined />, name: "Files" }
     ];
 
     return (
@@ -27,6 +31,16 @@ class AdminRouting extends React.Component {
             <Switch>
               <PrivateRoute>
                 <Route exact path={match.path} component={Overview} />
+                <Route
+                  exact
+                  path={`${match.path}/files`}
+                  component={ViewAllLinks}
+                />
+                <Route
+                  exact
+                  path={`${match.path}/files/edit/:linkID`}
+                  component={EditLinkPage}
+                />
               </PrivateRoute>
             </Switch>
           </Content>

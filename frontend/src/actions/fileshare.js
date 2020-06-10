@@ -6,6 +6,7 @@ import {
 } from "../apis/api";
 import {
   ADD_FILES,
+  ADMIN_GET_RECENT_LINKS,
   DELETE_FILE,
   DELETE_LINK,
   EDIT_LINK,
@@ -106,7 +107,7 @@ export const resetUploader = () => dispatch => {
 };
 
 export const getAdminLinkStats = () => dispatch => {
-  apiGetCall("/admin/link/stats")
+  return apiGetCall("/admin/link/stats")
     .then(response =>
       dispatch({ type: GET_ADMIN_LINK_STATS, payload: response.data })
     )
@@ -114,7 +115,7 @@ export const getAdminLinkStats = () => dispatch => {
 };
 
 export const getAllLinksPageable = (page, size, sortAttribute) => dispatch => {
-  getLinksPageable("/admin/links", page, size, sortAttribute)
+  return getLinksPageable("/admin/links", page, size, sortAttribute)
     .then(response =>
       dispatch({ type: GET_SHARED_FILES_PAGEABLE, payload: response.data })
     )
@@ -140,4 +141,12 @@ export const getLinksPageable = (endpoint, page, size, sortAttribute) => {
   params.append("attribute", sortAttribute);
 
   return apiGetCall(endpoint, { params });
+};
+
+export const getRecentLinks = size => dispatch => {
+  getLinksPageable("/admin/links", 0, size, "creationDate")
+    .then(response =>
+      dispatch({ type: ADMIN_GET_RECENT_LINKS, payload: response.data })
+    )
+    .catch(error => dispatch(setError(getApiError(error))));
 };

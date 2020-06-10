@@ -1,5 +1,6 @@
 import {
   ADD_FILES,
+  ADMIN_GET_RECENT_LINKS,
   DELETE_FILE,
   DELETE_LINK,
   EDIT_LINK,
@@ -160,6 +161,12 @@ export default (
       return {
         ...state,
         adminStats: { ...state.adminStats, mostViewed: action.payload }
+      };
+    }
+    case ADMIN_GET_RECENT_LINKS: {
+      return {
+        ...state,
+        adminStats: { ...state.adminStats, recentShared: action.payload }
       };
     }
     default: {

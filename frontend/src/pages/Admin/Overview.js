@@ -7,8 +7,8 @@ import ListCard from "../../components/Stats/ListCard";
 import { displayBytesInReadableForm } from "../../helpers";
 import {
   getAdminLinkStats,
-  getAllLinksPageable,
-  getPopularLinksPageable
+  getPopularLinksPageable,
+  getRecentLinks
 } from "../../actions/fileshare";
 import { getUsedStorage } from "../../actions/user";
 
@@ -17,7 +17,7 @@ const Overview = props => {
     totalViews,
     totalLinks,
     mostViewed,
-    activeFiles
+    recentShared
   } = props.fileSharer.adminStats;
 
   const { totalUsed } = props.user.admin;
@@ -25,7 +25,7 @@ const Overview = props => {
   useEffect(() => {
     props.getAdminLinkStats();
     props.getUsedStorage();
-    props.getAllLinksPageable(0, 5, "creationDate");
+    props.getRecentLinks(5);
     props.getPopularLinksPageable(0, 5, "views");
   }, []);
 
@@ -78,7 +78,7 @@ const Overview = props => {
           <ListCard
             title="Recent Links"
             itemLayout="horizontal"
-            dataSource={activeFiles}
+            dataSource={recentShared}
             renderItem={item => (
               <List.Item>
                 <List.Item.Meta
@@ -109,6 +109,6 @@ const mapStateToProps = state => {
 export default connect(mapStateToProps, {
   getAdminLinkStats,
   getUsedStorage,
-  getAllLinksPageable,
+  getRecentLinks,
   getPopularLinksPageable
 })(Overview);
