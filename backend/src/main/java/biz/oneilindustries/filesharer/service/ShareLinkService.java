@@ -351,11 +351,13 @@ public class ShareLinkService {
     }
 
     public LinkDTO linkToDTO(Link link) {
-        return new LinkDTO(link.getTitle(), link.getId(), link.getExpiryDatetime(), link.getSize(), link.getViews());
+        return new LinkDTO(link.getTitle(), link.getId(), link.getExpiryDatetime(), link.getSize(), link.getViews(), link.getCreationDate(),
+            link.getCreator().getUsername());
     }
 
     public LinkDTO linkToDTO(Link link, List<FileDTO> files) {
-        return new LinkDTO(link.getTitle(), link.getId(), link.getExpiryDatetime(), files, link.getSize(), link.getViews());
+        return new LinkDTO(link.getTitle(), link.getId(), link.getExpiryDatetime(), files, link.getSize(), link.getViews(), link.getCreationDate(),
+            link.getCreator().getUsername());
     }
 
     public FileDTO fileToDTO(SharedFile file) {

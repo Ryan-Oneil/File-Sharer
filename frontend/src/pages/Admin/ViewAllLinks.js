@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Table, Tabs, Tooltip } from "antd";
+import { Button, Card, Table, Tooltip } from "antd";
 import { displayBytesInReadableForm } from "../../helpers";
 import { connect } from "react-redux";
 import {
@@ -44,13 +44,17 @@ const ViewAllLinks = props => {
 
   const columns = [
     {
-      title: "ID",
-      dataIndex: "id"
+      title: "Created",
+      dataIndex: "creationDate"
     },
     {
       title: "Title",
       dataIndex: "title",
       render: name => (name ? name : "N/A")
+    },
+    {
+      title: "Creator",
+      dataIndex: "creator"
     },
     {
       title: "Expires",
