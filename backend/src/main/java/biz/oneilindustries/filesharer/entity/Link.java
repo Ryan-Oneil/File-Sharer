@@ -110,4 +110,8 @@ public class Link {
     public List<LinkView> getLinkViews() {
         return linkViews;
     }
+
+    public void setFiles(List<SharedFile> files) {
+        this.files = files;
+    }
 }
