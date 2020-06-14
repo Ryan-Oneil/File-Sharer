@@ -65,9 +65,10 @@ const LoginForm = props => {
               htmlType="submit"
               className="form-button"
               disabled={!isValid || isSubmitting}
+              loading={isSubmitting}
               size="large"
             >
-              Login
+              {isSubmitting ? "Logging In" : "Login"}
             </Button>
             {status && (
               <Alert

@@ -46,6 +46,7 @@ export default props => {
               className="form-button"
               disabled={!isValid || isSubmitting}
               size="large"
+              loading={isSubmitting}
             >
               Change Password
             </Button>

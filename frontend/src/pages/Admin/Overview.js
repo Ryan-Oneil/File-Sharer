@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Avatar, Col, List, Row } from "antd";
 
@@ -20,13 +20,17 @@ const Overview = props => {
     recentShared
   } = props.fileSharer.adminStats;
 
+  const [recentLinksLoading, setRecentLinksLoading] = useState(true);
+  const [popularLinksLoading, setPopularLinksLoading] = useState(true);
   const { totalUsed } = props.user.admin;
 
   useEffect(() => {
     props.getAdminLinkStats();
     props.getUsedStorage();
-    props.getRecentLinks(5);
-    props.getPopularLinksPageable(0, 5, "views");
+    props.getRecentLinks(5).then(() => setRecentLinksLoading(false));
+    props
+      .getPopularLinksPageable(0, 5, "views")
+      .then(() => setPopularLinksLoading(false));
   }, []);
 
   return (
@@ -54,6 +58,7 @@ const Overview = props => {
             title="Popular Links"
             itemLayout="horizontal"
             dataSource={mostViewed}
+            loading={popularLinksLoading}
             renderItem={item => (
               <List.Item>
                 <List.Item.Meta
@@ -79,6 +84,7 @@ const Overview = props => {
             title="Recent Links"
             itemLayout="horizontal"
             dataSource={recentShared}
+            loading={recentLinksLoading}
             renderItem={item => (
               <List.Item>
                 <List.Item.Meta

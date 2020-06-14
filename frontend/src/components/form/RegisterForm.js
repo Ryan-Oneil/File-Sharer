@@ -83,8 +83,9 @@ export default () => {
               className="form-button"
               disabled={!isValid || isSubmitting}
               size="large"
+              loading={isSubmitting}
             >
-              Register
+              {isSubmitting ? "Registering" : "Register"}
             </Button>
             {status && (
               <Alert

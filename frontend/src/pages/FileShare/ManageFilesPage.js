@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, Button, Card, List, Tabs, Tooltip } from "antd";
 import EditOutlined from "@ant-design/icons/lib/icons/EditOutlined";
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
@@ -15,11 +15,12 @@ const { TabPane } = Tabs;
 const ManageFilePage = props => {
   const { activeFiles, expiredFiles } = props.fileSharer;
   const { match } = props;
+  const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
     const { user } = props.auth;
 
-    props.getUserFiles(user.name);
+    props.getUserFiles(user.name).then(() => setLoadingData(false));
   }, []);
 
   const activeLinkList = () => {
@@ -28,6 +29,7 @@ const ManageFilePage = props => {
         pagination
         dataSource={activeFiles}
         size="small"
+        loading={loadingData}
         renderItem={item => (
           <List.Item
             actions={[
@@ -78,6 +80,7 @@ const ManageFilePage = props => {
         pagination
         size="small"
         dataSource={expiredFiles}
+        loading={loadingData}
         renderItem={item => (
           <List.Item>
             <List.Item.Meta

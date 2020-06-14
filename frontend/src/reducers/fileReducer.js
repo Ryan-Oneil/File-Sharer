@@ -149,7 +149,10 @@ export default (
       };
     }
     case GET_ADMIN_LINK_STATS: {
-      return { ...state, adminStats: action.payload };
+      return {
+        ...state,
+        adminStats: { ...state.adminStats, ...action.payload }
+      };
     }
     case GET_SHARED_FILES_PAGEABLE: {
       return {

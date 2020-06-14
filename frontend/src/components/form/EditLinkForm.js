@@ -50,6 +50,7 @@ const LinkForm = props => {
           className="form-button"
           disabled={!isValid || isSubmitting}
           style={{ marginTop: 24 }}
+          loading={isSubmitting}
         >
           Confirm
         </Button>

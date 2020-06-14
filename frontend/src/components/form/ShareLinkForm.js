@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Field, withFormik } from "formik";
 import { ErrorDisplay, InputWithErrors } from "./index";
 import { Alert, Button, Card, DatePicker } from "antd";
@@ -58,8 +58,9 @@ const LinkForm = props => {
             reachedLimit
           }
           style={{ marginTop: 24 }}
+          loading={isSubmitting}
         >
-          Confirm
+          {isSubmitting ? "Uploading..." : "Upload"}
         </Button>
         {status && (
           <Alert

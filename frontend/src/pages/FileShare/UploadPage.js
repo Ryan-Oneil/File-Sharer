@@ -10,7 +10,6 @@ import ShareLinkForm from "../../components/form/ShareLinkForm";
 
 const UploadPage = props => {
   const { size, files } = props.fileSharer.linkUpload;
-
   return (
     <>
       <Row gutter={[32, 32]} type="flex">

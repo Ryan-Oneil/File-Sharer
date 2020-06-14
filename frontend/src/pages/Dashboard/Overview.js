@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Avatar, Col, List, Row } from "antd";
 
@@ -16,12 +16,13 @@ const Overview = props => {
     recentShared
   } = props.fileSharer.stats;
 
+  const [loadingData, setLoadingData] = useState(true);
   const { used, max } = props.user.storageQuota;
 
   useEffect(() => {
     const { name } = props.auth.user;
 
-    props.getUserLinkStats(name);
+    props.getUserLinkStats(name).then(() => setLoadingData(false));
     props.getQuotaStats(name);
   }, []);
 
@@ -49,6 +50,7 @@ const Overview = props => {
           <ListCard
             title="Most Viewed Links"
             itemLayout="horizontal"
+            loading={loadingData}
             dataSource={mostViewed}
             renderItem={item => (
               <List.Item>
@@ -74,6 +76,7 @@ const Overview = props => {
           <ListCard
             title="Recent Links"
             itemLayout="horizontal"
+            loading={loadingData}
             dataSource={recentShared}
             renderItem={item => (
               <List.Item>

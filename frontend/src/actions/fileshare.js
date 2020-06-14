@@ -25,7 +25,7 @@ import { setError } from "./errors";
 import { getApiError } from "../helpers";
 
 export const getUserFiles = user => dispatch => {
-  apiGetCall(`/user/${user}/links`)
+  return apiGetCall(`/user/${user}/links`)
     .then(r => {
       dispatch({ type: GET_SHARED_FILES, payload: r.data });
     })
@@ -78,7 +78,7 @@ export const uploadFiles = (endpoint, files, params = {}) => {
 };
 
 export const getUserLinkStats = user => dispatch => {
-  apiGetCall(`/user/${user}/link/stats`)
+  return apiGetCall(`/user/${user}/link/stats`)
     .then(response => {
       dispatch({ type: GET_USER_LINK_STATS, payload: response.data });
     })
@@ -127,7 +127,7 @@ export const getPopularLinksPageable = (
   size,
   sortAttribute
 ) => dispatch => {
-  getLinksPageable("/admin/links", page, size, sortAttribute)
+  return getLinksPageable("/admin/links", page, size, sortAttribute)
     .then(response =>
       dispatch({ type: GET_POPULAR_LINKS, payload: response.data })
     )
@@ -144,7 +144,7 @@ export const getLinksPageable = (endpoint, page, size, sortAttribute) => {
 };
 
 export const getRecentLinks = size => dispatch => {
-  getLinksPageable("/admin/links", 0, size, "creationDate")
+  return getLinksPageable("/admin/links", 0, size, "creationDate")
     .then(response =>
       dispatch({ type: ADMIN_GET_RECENT_LINKS, payload: response.data })
     )

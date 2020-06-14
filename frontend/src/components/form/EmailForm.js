@@ -50,6 +50,7 @@ export default props => {
               className="form-button"
               disabled={!isValid || isSubmitting}
               size="large"
+              loading={isSubmitting}
             >
               Confirm
             </Button>
