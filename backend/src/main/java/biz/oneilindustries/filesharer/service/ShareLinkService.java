@@ -59,35 +59,32 @@ public class ShareLinkService {
         long sizeOfFiles = files.stream().mapToLong(File::length).sum();
         Link link = new Link(generateLinkUUID(UUID_LENGTH), title, user, format.parse(expires), new Date(), sizeOfFiles);
 
+        link.setFiles(generateSharedFiles(files, link));
         linkRepository.save(link);
-        shareFiles(files, link);
 
         //Checks to see if the files parent directory matches the link id
         //If files are uploaded using rest API then it is first put into a temp folder
-        if (!renameLinkDirectory(files.get(0), link)) {
+        if (!renameLinkDirectory(files.get(0), link.getId(), user.getUsername())) {
             logger.error("Unable to rename directory " + files.get(0).getParent());
             throw new RuntimeException("Error changing directory name");
         }
         return link;
     }
 
-    private boolean renameLinkDirectory(File file, Link link) {
+    public boolean renameLinkDirectory(File file, String newLinkID, String creator) {
         File parent = file.getParentFile();
 
-        if (!parent.getName().equals(link.getId())) {
-            File reNamedDirectory = new File(getLinkDirectory(link.getCreator().getUsername(), link.getId()));
+        if (!parent.getName().equals(newLinkID)) {
+            File reNamedDirectory = new File(getLinkDirectory(creator, newLinkID));
 
             return parent.renameTo(reNamedDirectory);
         }
         return true;
     }
 
-    public List<SharedFile> shareFiles(List<File> files, Link link) {
-        List<SharedFile> sharedFiles = files.stream().map(file -> new SharedFile(generateFileUUID(UUID_LENGTH), file.getName(), file.length(), link))
+    public List<SharedFile> generateSharedFiles(List<File> files, Link link) {
+        return files.stream().map(file -> new SharedFile(generateFileUUID(UUID_LENGTH), file.getName(), file.length(), link))
             .collect(Collectors.toList());
-
-        fileRepository.saveAll(sharedFiles);
-        return sharedFiles;
     }
 
     public String generateLinkUUID(int length) {
@@ -191,7 +188,7 @@ public class ShareLinkService {
         return file;
     }
 
-    private void deleteLocalFile(String path) {
+    public void deleteLocalFile(String path) {
         try {
             Files.deleteIfExists(Paths.get(path));
         } catch (IOException e) {
@@ -255,7 +252,7 @@ public class ShareLinkService {
         Link link = getLinkValidate(linkID);
 
         long sizeOfFiles = files.stream().mapToLong(File::length).sum();
-        List<SharedFile> sharedFiles = shareFiles(files, link);
+        List<SharedFile> sharedFiles = generateSharedFiles(files, link);
 
         increaseLinkSize(link, sizeOfFiles);
 
