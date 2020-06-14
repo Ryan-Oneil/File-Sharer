@@ -29,18 +29,25 @@ import FileAddOutlined from "@ant-design/icons/lib/icons/FileAddOutlined";
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
 import ConfirmButton from "../../components/ConfirmButton";
 import Uploader from "../../components/Uploader";
+import ListCard from "../../components/Stats/ListCard";
 
 const EditLinkPage = props => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const { files } = props.fileSharer.linkUpload;
   const { linkID } = props.match.params;
   const { activeFiles } = props.fileSharer;
 
   useEffect(() => {
-    props.getLinkDetails(linkID);
+    props.getLinkDetails(linkID).then(() => setLoadingData(false));
   }, []);
-  const link = activeFiles.find(link => link.id === linkID);
+  const link = activeFiles.find(link => link.id === linkID) || {
+    title: "",
+    files: [],
+    size: 0,
+    views: 0
+  };
 
   const deleteLinkAction = () => {
     props.deleteLink(linkID);
@@ -93,71 +100,71 @@ const EditLinkPage = props => {
             </Card>
           </Col>
           <Col span={17} offset={1}>
-            <Card>
-              <List
-                pagination
-                size="small"
-                dataSource={link.files}
-                renderItem={item => (
-                  <List.Item
-                    actions={[
-                      <Tooltip title="Download">
-                        <Button
-                          shape="circle"
-                          type="primary"
-                          icon={<DownloadOutlined />}
-                          onClick={() => {
-                            window.open(
-                              `${BASE_URL}/file/dl/${item.id}`,
-                              "_blank"
-                            );
-                          }}
-                        />
-                      </Tooltip>,
-                      <ConfirmButton
-                        key={"deleteButton"}
-                        buttonIcon={<DeleteOutlined />}
-                        modalTitle="Do you want to delete this file?"
-                        confirmAction={() => deleteFileAction(item.id)}
-                        toolTip="Delete File"
+            <ListCard
+              title="Files"
+              pagination
+              size="small"
+              dataSource={link.files}
+              loading={loadingData}
+              renderItem={item => (
+                <List.Item
+                  actions={[
+                    <Tooltip title="Download">
+                      <Button
+                        shape="circle"
+                        type="primary"
+                        icon={<DownloadOutlined />}
+                        onClick={() => {
+                          window.open(
+                            `${BASE_URL}/file/dl/${item.id}`,
+                            "_blank"
+                          );
+                        }}
                       />
-                    ]}
-                  >
-                    <List.Item.Meta
-                      avatar={
-                        <Avatar src={require("../../assets/images/file.png")} />
-                      }
-                      title={item.name}
-                      description={`Size ${displayBytesInReadableForm(
-                        item.size
-                      )}`}
+                    </Tooltip>,
+                    <ConfirmButton
+                      key={"deleteButton"}
+                      buttonIcon={<DeleteOutlined />}
+                      modalTitle="Do you want to delete this file?"
+                      confirmAction={() => deleteFileAction(item.id)}
+                      toolTip="Delete File"
                     />
-                  </List.Item>
-                )}
-                footer={[
-                  <Tooltip title="Add files" key={"fileButton"}>
-                    <Button
-                      type="primary"
-                      icon={<FileAddOutlined />}
-                      onClick={() => {
-                        setShowUploadModal(true);
-                      }}
-                    >
-                      Add File(s)
-                    </Button>
-                  </Tooltip>,
-                  <ConfirmButton
-                    key={"deleteButton"}
-                    buttonIcon={<DeleteOutlined />}
-                    modalTitle="Do you want to delete this link?"
-                    modalDescription="All files will also be deleted"
-                    buttonText="Delete"
-                    confirmAction={deleteLinkAction}
-                    toolTip="Delete Link"
+                  ]}
+                >
+                  <List.Item.Meta
+                    avatar={
+                      <Avatar src={require("../../assets/images/file.png")} />
+                    }
+                    title={item.name}
+                    description={`Size ${displayBytesInReadableForm(
+                      item.size
+                    )}`}
                   />
-                ]}
-              />
-            </Card>
+                </List.Item>
+              )}
+              footer={[
+                <Tooltip title="Add files" key={"fileButton"}>
+                  <Button
+                    type="primary"
+                    icon={<FileAddOutlined />}
+                    onClick={() => {
+                      setShowUploadModal(true);
+                    }}
+                  >
+                    Add File(s)
+                  </Button>
+                </Tooltip>,
+                <ConfirmButton
+                  key={"deleteButton"}
+                  buttonIcon={<DeleteOutlined />}
+                  modalTitle="Do you want to delete this link?"
+                  modalDescription="All files will also be deleted"
+                  buttonText="Delete"
+                  confirmAction={deleteLinkAction}
+                  toolTip="Delete Link"
+                />
+              ]}
+            />
           </Col>
         </Row>
       )}

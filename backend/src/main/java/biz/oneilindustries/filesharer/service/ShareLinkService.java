@@ -118,7 +118,7 @@ public class ShareLinkService {
     public Link getLinkCheckPresence(String linkID) {
         Optional<Link> link = getLink(linkID);
 
-        if (!link.isPresent()) throw new LinkException("This shared link doesn't exist");
+        if (!link.isPresent()) throw new ResourceNotFoundException("This shared link doesn't exist");
 
         return link.get();
     }
@@ -134,7 +134,7 @@ public class ShareLinkService {
     public Link getLinkFileWithValidation(String linkID) {
         Optional<Link> link = linkRepository.getById(linkID);
 
-        if (!link.isPresent()) throw new LinkException("This shared link doesn't exist");
+        if (!link.isPresent()) throw new ResourceNotFoundException("This shared link doesn't exist");
 
         return link.get();
     }

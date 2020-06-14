@@ -43,7 +43,7 @@ export const deleteLink = linkID => dispatch => {
 };
 
 export const getLinkDetails = linkID => dispatch => {
-  apiGetCall(`/info/${linkID}`)
+  return apiGetCall(`/info/${linkID}`)
     .then(response => {
       dispatch({ type: GET_LINK_DETAILS, payload: response.data });
     })
