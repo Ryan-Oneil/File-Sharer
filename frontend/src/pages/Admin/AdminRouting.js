@@ -16,7 +16,7 @@ class AdminRouting extends React.Component {
     const { match } = this.props;
     const { Sider, Content } = Layout;
     const adminLinks = [
-      { path: "/stats", icon: <DashboardOutlined />, name: "Stats" },
+      { path: "", icon: <DashboardOutlined />, name: "Stats" },
       { path: "/files", icon: <FileOutlined />, name: "Files" }
     ];
 

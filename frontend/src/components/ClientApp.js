@@ -9,7 +9,6 @@ import SharedLinkPage from "../pages/FileShare/SharedLinkPage";
 import Register from "../pages/Auth/Register";
 import ResetPassword from "../pages/Auth/ResetPassword";
 import PublicRoute from "./PublicRoute";
-import Home from "../pages/Home";
 import ChangePassword from "../pages/Auth/ChangePassword";
 import EmailConfirmation from "../pages/Auth/EmailConfirmation";
 import AdminRouting from "../pages/Admin/AdminRouting";
@@ -19,7 +18,7 @@ class ClientApp extends React.Component {
     return (
       <BrowserRouter>
         <Switch>
-          <Route exact path="/" component={Home} />
+          <Route exact path="/" component={Login} />
           <PublicRoute path="/login">
             <Route exact path="/login" component={Login} />
           </PublicRoute>

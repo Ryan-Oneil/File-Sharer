@@ -2,8 +2,14 @@ import React from "react";
 import LoginForm from "../../components/form/LoginForm";
 import { Link } from "react-router-dom";
 import { Button, Card, Divider } from "antd";
+import { connect } from "react-redux";
 
-export default () => {
+const Login = props => {
+  const { isAuthenticated } = props.auth;
+
+  if (isAuthenticated) {
+    props.history.push("/dashboard");
+  }
   return (
     <div className="login">
       <Card>
@@ -16,3 +22,7 @@ export default () => {
     </div>
   );
 };
+const mapStateToProps = state => {
+  return { auth: state.auth };
+};
+export default connect(mapStateToProps)(Login);

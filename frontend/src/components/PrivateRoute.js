@@ -7,7 +7,7 @@ const PrivateRoute = props => {
 
   return (
     <Fragment>
-      {isAuthenticated ? props.children : <Redirect to="/" />}
+      {isAuthenticated ? props.children : <Redirect to="/login" />}
     </Fragment>
   );
 };

@@ -14,18 +14,11 @@ const NavHeader = props => {
   return (
     <Header className="whiteBackground">
       <Menu mode="horizontal">
-        <Menu.Item key="/">
-          <NavLink to="/" exact>
-            Home
+        <Menu.Item key="/dashboard">
+          <NavLink to="/dashboard" exact>
+            Dashboard
           </NavLink>
         </Menu.Item>
-        {isAuthenticated && (
-          <Menu.Item key="/dashboard">
-            <NavLink to="/dashboard" exact>
-              Dashboard
-            </NavLink>
-          </Menu.Item>
-        )}
         {isAdmin && (
           <Menu.Item key="/admin">
             <NavLink to="/admin" exact>
