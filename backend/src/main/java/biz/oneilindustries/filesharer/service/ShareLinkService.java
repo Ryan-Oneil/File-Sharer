@@ -333,7 +333,7 @@ public class ShareLinkService {
         return linksToDTO(linkRepository.findAll(pageable).toList());
     }
 
-    public int getUserTotalLinkCount(String username) {
+    public Integer getUserTotalLinkCount(String username) {
         return linkRepository.getUserLinkCount(username);
     }
 

@@ -28,10 +28,10 @@ public interface  LinkRepository extends PagingAndSortingRepository<Link, String
     List<Link> findTop5ByCreator_UsernameOrderByCreationDateDesc(String username);
 
     @Query("select count(l) from Link l where l.creator.username = ?1")
-    int getUserLinkCount(String username);
+    Integer getUserLinkCount(String username);
 
     @Query("select sum (l.views) from Link l where l.creator.username = ?1")
-    long getUserTotalViews(String username);
+    Long getUserTotalViews(String username);
 
     List<Link> findTop5ByCreator_UsernameOrderByViewsDesc(String username);
 
@@ -39,7 +39,7 @@ public interface  LinkRepository extends PagingAndSortingRepository<Link, String
     long getTotalViews();
 
     @Query("select count (l) from Link l")
-    long getTotalLinks();
+    Long getTotalLinks();
 
     List<Link> getAllByCreator_Username(String username, Pageable pageable);
 }

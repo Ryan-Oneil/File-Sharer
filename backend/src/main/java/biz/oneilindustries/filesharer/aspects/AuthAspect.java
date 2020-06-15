@@ -27,9 +27,6 @@ public class AuthAspect {
     @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.deleteSharedLink(..))")
     private void deleteLink() {}
 
-    @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.displayUsersLink(..))")
-    private void viewUserLinks() {}
-
     @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.editLink(..))")
     private void editLink() {}
 
@@ -39,8 +36,8 @@ public class AuthAspect {
     @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.addFilesToLink(..))")
     private void addFiles() {}
 
-    @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.displayUserLinkStats(..))")
-    private void displayUserLinkStats() {}
+    @Pointcut("execution(* biz.oneilindustries.filesharer.controller.FileSharingController.displayUser*(..))")
+    private void fileShareUserLinks() {}
 
     //User controller
     @Pointcut("execution(* biz.oneilindustries.filesharer.controller.UserController.getRemainingQuota(..))")
@@ -81,14 +78,15 @@ public class AuthAspect {
         }
     }
 
-    @Before("viewUserLinks() || displayUserLinkStats() || displayUserQuota() || displayUserDetails() || updateUserDetails()")
+    @Before("fileShareUserLinks() || displayUserQuota() || displayUserDetails() || updateUserDetails()")
     public void hasUserPermission(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
 
+        String username = (String) args[0];
         User user = (User) ((Authentication) args[1]).getPrincipal();
         String callingUser = user.getUsername();
 
-        if (!user.getUsername().equalsIgnoreCase(callingUser) && !ADMIN_ROLES.contains(user.getRole())) {
+        if (!username.equalsIgnoreCase(callingUser) && !ADMIN_ROLES.contains(user.getRole())) {
             throw new NotAuthorisedException("You don't have permission to do this");
         }
     }
