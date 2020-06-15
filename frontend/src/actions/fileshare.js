@@ -15,6 +15,7 @@ import {
   GET_POPULAR_LINKS,
   GET_SHARED_FILES,
   GET_SHARED_FILES_PAGEABLE,
+  GET_USER_LINK_COUNT,
   GET_USER_LINK_STATS,
   UPLOADER_ADD_FILE,
   UPLOADER_REMOVE_FILE,
@@ -23,16 +24,6 @@ import {
 } from "./types";
 import { setError } from "./errors";
 import { getApiError } from "../helpers";
-
-export const getUserFiles = user => dispatch => {
-  return apiGetCall(`/user/${user}/links`)
-    .then(r => {
-      dispatch({ type: GET_SHARED_FILES, payload: r.data });
-    })
-    .catch(error => {
-      dispatch(setError(getApiError(error)));
-    });
-};
 
 export const deleteLink = linkID => dispatch => {
   apiDeleteCall(`/delete/${linkID}`)
@@ -78,7 +69,7 @@ export const uploadFiles = (endpoint, files, params = {}) => {
 };
 
 export const getUserLinkStats = user => dispatch => {
-  return apiGetCall(`/user/${user}/link/stats`)
+  return apiGetCall(`/user/${user}/links/stats`)
     .then(response => {
       dispatch({ type: GET_USER_LINK_STATS, payload: response.data });
     })
@@ -134,11 +125,18 @@ export const getPopularLinksPageable = (
     .catch(error => dispatch(setError(getApiError(error))));
 };
 
-export const getLinksPageable = (endpoint, page, size, sortAttribute) => {
+export const getLinksPageable = (
+  endpoint,
+  page,
+  size,
+  sortAttribute,
+  direction
+) => {
   const params = new URLSearchParams();
   params.append("page", page);
   params.append("size", size);
-  params.append("attribute", sortAttribute);
+  if (sortAttribute) params.append("attribute", sortAttribute);
+  if (direction) params.append("direction", direction);
 
   return apiGetCall(endpoint, { params });
 };
@@ -147,6 +145,29 @@ export const getRecentLinks = size => dispatch => {
   return getLinksPageable("/admin/links", 0, size, "creationDate")
     .then(response =>
       dispatch({ type: ADMIN_GET_RECENT_LINKS, payload: response.data })
+    )
+    .catch(error => dispatch(setError(getApiError(error))));
+};
+
+export const getUserLinkCount = user => dispatch => {
+  return apiGetCall(`/user/${user}/links/stat/total`)
+    .then(response =>
+      dispatch({ type: GET_USER_LINK_COUNT, payload: response.data })
+    )
+    .catch(error => dispatch(setError(getApiError(error))));
+};
+
+export const getUserLinks = (
+  username,
+  page,
+  size,
+  sorter = { order: "", field: "" }
+) => dispatch => {
+  const { order, field } = sorter;
+
+  return getLinksPageable(`/user/${username}/links`, page, size, field, order)
+    .then(response =>
+      dispatch({ type: GET_SHARED_FILES, payload: response.data })
     )
     .catch(error => dispatch(setError(getApiError(error))));
 };

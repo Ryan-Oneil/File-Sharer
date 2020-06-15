@@ -3,6 +3,7 @@ package biz.oneilindustries.filesharer.repository;
 import biz.oneilindustries.filesharer.entity.Link;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -40,4 +41,5 @@ public interface  LinkRepository extends PagingAndSortingRepository<Link, String
     @Query("select count (l) from Link l")
     long getTotalLinks();
 
+    List<Link> getAllByCreator_Username(String username, Pageable pageable);
 }

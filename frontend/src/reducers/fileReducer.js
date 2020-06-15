@@ -9,6 +9,7 @@ import {
   GET_POPULAR_LINKS,
   GET_SHARED_FILES,
   GET_SHARED_FILES_PAGEABLE,
+  GET_USER_LINK_COUNT,
   GET_USER_LINK_STATS,
   UPLOADER_ADD_FILE,
   UPLOADER_REMOVE_FILE,
@@ -45,8 +46,7 @@ export default (
     case GET_SHARED_FILES: {
       return {
         ...state,
-        activeFiles: action.payload.activeLinks,
-        expiredFiles: action.payload.expiredLinks
+        activeFiles: action.payload
       };
     }
     case DELETE_LINK: {
@@ -146,6 +146,12 @@ export default (
       return {
         ...state,
         linkUpload: { size: 0, files: [], reachedLimit: false }
+      };
+    }
+    case GET_USER_LINK_COUNT: {
+      return {
+        ...state,
+        stats: { ...state.stats, totalLinks: action.payload }
       };
     }
     case GET_ADMIN_LINK_STATS: {

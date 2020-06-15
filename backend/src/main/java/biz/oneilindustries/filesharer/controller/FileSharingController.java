@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -159,17 +158,26 @@ public class FileSharingController {
 //    User related APIs
 
     @GetMapping("/user/{username}/links")
-    public ResponseEntity<Map<String, List<LinkDTO>>> displayUsersLink(@PathVariable String username, Authentication user) {
-        Map<String, List<LinkDTO>> allLinks = linkService.getUserLinksSplit(username);
+    public ResponseEntity<List<LinkDTO>> displayUsersLink(@PathVariable String username, Authentication user,
+        @RequestParam int page, @RequestParam int size, @RequestParam(defaultValue = "", required = false)
+        String attribute, @RequestParam(defaultValue = "", required = false) String direction) {
+        List<LinkDTO> links = linkService.getUserLinks(username, page, size, attribute, direction);
 
-        return ResponseEntity.ok(allLinks);
+        return ResponseEntity.ok(links);
     }
 
-    @GetMapping("/user/{username}/link/stats")
+    @GetMapping("/user/{username}/links/stats")
     public ResponseEntity<HashMap<String, Object>> displayUserLinkStats(@PathVariable String username, Authentication user) {
         HashMap<String, Object> userStats = linkService.getUserStats(username);
 
         return ResponseEntity.ok(userStats);
+    }
+
+    @GetMapping("/user/{username}/links/stat/total")
+    public ResponseEntity<Integer> displayUserTotalLinkCount(@PathVariable String username, Authentication user) {
+        int totalLinks = linkService.getUserTotalLinkCount(username);
+
+        return ResponseEntity.ok(totalLinks);
     }
 
     //Admin related apis

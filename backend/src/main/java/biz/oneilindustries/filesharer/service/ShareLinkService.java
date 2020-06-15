@@ -25,7 +25,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
@@ -241,13 +240,6 @@ public class ShareLinkService {
         return linkRepository.getAllActiveByCreator(user);
     }
 
-    public Map<String, List<LinkDTO>> getUserLinksSplit(String user) {
-        List<LinkDTO> activeLinks = linksToDTO(getActiveUserLinks(user));
-        List<LinkDTO> expiredLinks = linksToDTO(getExpiredUserLinks(user));
-
-        return Map.of("activeLinks", activeLinks, "expiredLinks", expiredLinks);
-    }
-
     public List<FileDTO> addFilesToLink(String linkID, List<File> files) {
         Link link = getLinkValidate(linkID);
 
@@ -339,6 +331,23 @@ public class ShareLinkService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(attribute).descending());
 
         return linksToDTO(linkRepository.findAll(pageable).toList());
+    }
+
+    public int getUserTotalLinkCount(String username) {
+        return linkRepository.getUserLinkCount(username);
+    }
+
+    public List<LinkDTO> getUserLinks(String username, int page, int size, String attribute, String direction) {
+        Pageable pageable;
+
+        if (direction.equalsIgnoreCase("ascend")) {
+            pageable = PageRequest.of(page, size, Sort.by(attribute).ascending());
+        } else if (direction.equalsIgnoreCase("descend")){
+            pageable = PageRequest.of(page, size, Sort.by(attribute).descending());
+        } else {
+            pageable = PageRequest.of(page, size);
+        }
+        return linksToDTO(linkRepository.getAllByCreator_Username(username, pageable));
     }
 
     public List<LinkDTO> linksToDTO(List<Link> links) {
