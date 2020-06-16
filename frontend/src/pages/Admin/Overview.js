@@ -69,7 +69,11 @@ const Overview = props => {
                     />
                   }
                   title={
-                    <a href="https://ant.design">
+                    <a
+                      href={`/shared/${item.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       {item.title ? item.title : item.id}
                     </a>
                   }
@@ -95,7 +99,11 @@ const Overview = props => {
                     />
                   }
                   title={
-                    <a href="https://ant.design">
+                    <a
+                      href={`/shared/${item.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       {item.title ? item.title : item.id}
                     </a>
                   }

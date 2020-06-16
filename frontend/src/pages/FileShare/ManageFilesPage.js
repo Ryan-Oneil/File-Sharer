@@ -83,9 +83,13 @@ const ManageFilePage = props => {
       render: (text, record) => (
         <>
           <Tooltip title="View">
-            <Link to={`/shared/${record.id}`}>
-              <Button shape="circle" icon={<EyeOutlined />} />
-            </Link>
+            <Button
+              shape="circle"
+              icon={<EyeOutlined />}
+              onClick={() => {
+                window.open(`/shared/${record.id}`, "_blank");
+              }}
+            />
           </Tooltip>
           <Tooltip title="Download">
             <Button
