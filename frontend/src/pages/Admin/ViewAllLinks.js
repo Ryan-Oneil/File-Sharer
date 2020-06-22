@@ -20,12 +20,12 @@ const ViewAllLinks = props => {
     total: totalLinks
   });
 
-  const loadLinks = ({ current, pageSize }) => {
+  const loadLinks = ({ current, pageSize }, sorter) => {
     setLoading(true);
 
     //current is always reduced by 1 since backend starts page at 0 while frontend starts at 1
     props
-      .getAllLinksPageable(current - 1, pageSize, "creationDate")
+      .getAllLinksPageable(current - 1, pageSize, sorter)
       .then(() => setLoading(false));
   };
 
@@ -33,7 +33,7 @@ const ViewAllLinks = props => {
     if (totalLinks === 0 && activeFiles.length === 0) {
       props.getAdminLinkStats();
     }
-    loadLinks(pagination);
+    loadLinks(pagination, { field: "creationDate", order: "descend" });
   }, []);
 
   useEffect(() => {
@@ -45,29 +45,36 @@ const ViewAllLinks = props => {
   const columns = [
     {
       title: "Created",
-      dataIndex: "creationDate"
+      dataIndex: "creationDate",
+      sorter: true,
+      defaultSortOrder: "descend"
     },
     {
       title: "Title",
       dataIndex: "title",
-      render: name => (name ? name : "N/A")
+      render: name => (name ? name : "N/A"),
+      sorter: true
     },
     {
       title: "Creator",
-      dataIndex: "creator"
+      dataIndex: "creator",
+      sorter: true
     },
     {
       title: "Expires",
-      dataIndex: "expiryDatetime"
+      dataIndex: "expiryDatetime",
+      sorter: true
     },
     {
       title: "Views",
-      dataIndex: "views"
+      dataIndex: "views",
+      sorter: true
     },
     {
       title: "Size",
       dataIndex: "size",
-      render: size => displayBytesInReadableForm(size)
+      render: size => displayBytesInReadableForm(size),
+      sorter: true
     },
     {
       title: "",
@@ -83,9 +90,8 @@ const ViewAllLinks = props => {
   ];
 
   const handleTableChange = (pagination, filters, sorter) => {
-    console.log(pagination, filters, sorter);
     setPagination(pagination);
-    loadLinks(pagination);
+    loadLinks(pagination, sorter);
   };
 
   return (

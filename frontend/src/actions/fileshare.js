@@ -105,8 +105,12 @@ export const getAdminLinkStats = () => dispatch => {
     .catch(error => dispatch(setError(getApiError(error))));
 };
 
-export const getAllLinksPageable = (page, size, sortAttribute) => dispatch => {
-  return getLinksPageable("/admin/links", page, size, sortAttribute)
+export const getAllLinksPageable = (
+  page,
+  size,
+  sorter = { order: "", field: "" }
+) => dispatch => {
+  return getLinksPageable("/admin/links", page, size, getFilterSort(sorter))
     .then(response =>
       dispatch({ type: GET_SHARED_FILES_PAGEABLE, payload: response.data })
     )
@@ -125,18 +129,11 @@ export const getPopularLinksPageable = (
     .catch(error => dispatch(setError(getApiError(error))));
 };
 
-export const getLinksPageable = (
-  endpoint,
-  page,
-  size,
-  sortAttribute,
-  direction
-) => {
+export const getLinksPageable = (endpoint, page, size, sortAttribute) => {
   const params = new URLSearchParams();
   params.append("page", page);
   params.append("size", size);
-  if (sortAttribute) params.append("attribute", sortAttribute);
-  if (direction) params.append("direction", direction);
+  if (sortAttribute) params.append("sort", sortAttribute);
 
   return apiGetCall(endpoint, { params });
 };
@@ -163,11 +160,25 @@ export const getUserLinks = (
   size,
   sorter = { order: "", field: "" }
 ) => dispatch => {
-  const { order, field } = sorter;
-
-  return getLinksPageable(`/user/${username}/links`, page, size, field, order)
+  return getLinksPageable(
+    `/user/${username}/links`,
+    page,
+    size,
+    getFilterSort(sorter)
+  )
     .then(response =>
       dispatch({ type: GET_SHARED_FILES, payload: response.data })
     )
     .catch(error => dispatch(setError(getApiError(error))));
+};
+
+const getFilterSort = sorter => {
+  let order = "";
+
+  if (sorter.order === "ascend") {
+    order = "asc";
+  } else if (sorter.order === "descend") {
+    order = "desc";
+  }
+  return `${sorter.field},${order}`;
 };

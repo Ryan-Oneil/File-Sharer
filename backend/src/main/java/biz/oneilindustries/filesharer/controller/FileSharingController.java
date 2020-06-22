@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.apache.commons.fileupload.FileUploadException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
@@ -158,10 +158,8 @@ public class FileSharingController {
 //    User related APIs
 
     @GetMapping("/user/{username}/links")
-    public ResponseEntity<List<LinkDTO>> displayUsersLink(@PathVariable String username, Authentication user,
-        @RequestParam int page, @RequestParam int size, @RequestParam(defaultValue = "", required = false)
-        String attribute, @RequestParam(defaultValue = "", required = false) String direction) {
-        List<LinkDTO> links = linkService.getUserLinks(username, page, size, attribute, direction);
+    public ResponseEntity<List<LinkDTO>> displayUsersLink(@PathVariable String username, Authentication user, Pageable pageable) {
+        List<LinkDTO> links = linkService.getUserLinks(username, pageable);
 
         return ResponseEntity.ok(links);
     }
@@ -190,8 +188,8 @@ public class FileSharingController {
     }
 
     @GetMapping("/admin/links")
-    public ResponseEntity<List<LinkDTO>> displayAllLinksFromRange(@RequestParam int page, @RequestParam int size, @RequestParam String attribute) {
-        List<LinkDTO> links = linkService.getLinksPageable(page, size, attribute);
+    public ResponseEntity<List<LinkDTO>> displayAllLinksFromRange(Pageable pageable) {
+        List<LinkDTO> links = linkService.getLinksPageable(pageable);
 
         return ResponseEntity.ok(links);
     }

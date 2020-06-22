@@ -30,9 +30,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -327,9 +325,7 @@ public class ShareLinkService {
         return stats;
     }
 
-    public List<LinkDTO> getLinksPageable(int page, int size, String attribute) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(attribute).descending());
-
+    public List<LinkDTO> getLinksPageable(Pageable pageable) {
         return linksToDTO(linkRepository.findAll(pageable).toList());
     }
 
@@ -337,16 +333,7 @@ public class ShareLinkService {
         return linkRepository.getUserLinkCount(username);
     }
 
-    public List<LinkDTO> getUserLinks(String username, int page, int size, String attribute, String direction) {
-        Pageable pageable;
-
-        if (direction.equalsIgnoreCase("ascend")) {
-            pageable = PageRequest.of(page, size, Sort.by(attribute).ascending());
-        } else if (direction.equalsIgnoreCase("descend")){
-            pageable = PageRequest.of(page, size, Sort.by(attribute).descending());
-        } else {
-            pageable = PageRequest.of(page, size);
-        }
+    public List<LinkDTO> getUserLinks(String username, Pageable pageable) {
         return linksToDTO(linkRepository.getAllByCreator_Username(username, pageable));
     }
 

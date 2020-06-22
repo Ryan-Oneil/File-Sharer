@@ -41,7 +41,7 @@ const ManageFilePage = props => {
     if (totalLinks === 0 && activeFiles.length === 0) {
       props.getUserLinkCount(name);
     }
-    loadLinks(pagination);
+    loadLinks(pagination, { field: "creationDate", order: "descend" });
   }, []);
 
   useEffect(() => {
@@ -54,7 +54,8 @@ const ManageFilePage = props => {
     {
       title: "Created",
       dataIndex: "creationDate",
-      sorter: true
+      sorter: true,
+      defaultSortOrder: "descend"
     },
     {
       title: "Title",
