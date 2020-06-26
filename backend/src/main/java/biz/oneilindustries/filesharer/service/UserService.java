@@ -1,27 +1,29 @@
 package biz.oneilindustries.filesharer.service;
 
 import biz.oneilindustries.filesharer.dto.QuotaDTO;
-import biz.oneilindustries.filesharer.entity.UserDTO;
-import biz.oneilindustries.filesharer.exception.TokenException;
-import biz.oneilindustries.filesharer.repository.QuotaRepository;
-import biz.oneilindustries.filesharer.repository.ResetPasswordTokenRepository;
-import biz.oneilindustries.filesharer.repository.UserRepository;
-import biz.oneilindustries.filesharer.repository.VerificationTokenRepository;
+import biz.oneilindustries.filesharer.dto.UserDTO;
 import biz.oneilindustries.filesharer.entity.PasswordResetToken;
 import biz.oneilindustries.filesharer.entity.Quota;
 import biz.oneilindustries.filesharer.entity.User;
 import biz.oneilindustries.filesharer.entity.VerificationToken;
+import biz.oneilindustries.filesharer.exception.TokenException;
 import biz.oneilindustries.filesharer.exception.UserException;
+import biz.oneilindustries.filesharer.repository.QuotaRepository;
+import biz.oneilindustries.filesharer.repository.ResetPasswordTokenRepository;
+import biz.oneilindustries.filesharer.repository.UserRepository;
+import biz.oneilindustries.filesharer.repository.VerificationTokenRepository;
 import biz.oneilindustries.filesharer.validation.LoginForm;
 import biz.oneilindustries.filesharer.validation.UpdatedUser;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,36 +31,28 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     public static final String USERNAME_REGEX = "^(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$";
+    private final UserRepository userRepository;
+    private final QuotaRepository quotaRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
+    private final ResetPasswordTokenRepository resetPasswordTokenRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private QuotaRepository quotaRepository;
-
-    @Autowired
-    private VerificationTokenRepository verificationTokenRepository;
-
-    @Autowired
-    private ResetPasswordTokenRepository resetPasswordTokenRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public UserService(UserRepository userRepository, QuotaRepository quotaRepository,
+        VerificationTokenRepository verificationTokenRepository, ResetPasswordTokenRepository resetPasswordTokenRepository,
+        PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.quotaRepository = quotaRepository;
+        this.verificationTokenRepository = verificationTokenRepository;
+        this.resetPasswordTokenRepository = resetPasswordTokenRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public Iterable<User> getUsers() {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUser(String name) {
-        return userRepository.getByUsername(name);
-    }
-
-    public User checkUserExists(String user) {
-        Optional<User> checkUser = getUser(user);
-
-        if (!checkUser.isPresent()) throw new UserException("Logged in user not found");
-
-        return checkUser.get();
+    public User getUser(String user) {
+        return userRepository.getByUsername(user).orElseThrow(() -> new UserException(user + " not found"));
     }
 
     public Optional<User> getUserByEmail(String email) {
@@ -70,14 +64,15 @@ public class UserService {
     }
 
     public User registerUser(LoginForm loginForm) {
-
-        if (!loginForm.getUsername().matches(USERNAME_REGEX)) {
-            throw new UserException("Username may only contain a-Z . _");
-        }
-        String encryptedPassword = passwordEncoder.encode(loginForm.getPassword());
         String username = loginForm.getUsername();
+        String email = loginForm.getEmail();
 
-        User user = new User(username.toLowerCase(), encryptedPassword,false, loginForm.getEmail(), "ROLE_UNREGISTERED");
+        validateUsername(username);
+        validateEmail(email);
+
+        String encryptedPassword = passwordEncoder.encode(loginForm.getPassword());
+
+        User user = new User(username.toLowerCase(), encryptedPassword,false, email, "ROLE_UNREGISTERED");
         Quota quota = new Quota(username, 0, 25, false);
 
         saveUser(user);
@@ -86,25 +81,28 @@ public class UserService {
         return user;
     }
 
-    public void updateUser(UpdatedUser updatedUser, String name) throws UsernameNotFoundException {
-        Optional<User> checkUser = getUser(name);
-
-        if (!checkUser.isPresent()) {
-            throw new UsernameNotFoundException(name + " doesn't exists");
+    public void validateUsername(String username) {
+        if (!username.matches(USERNAME_REGEX)) {
+            throw new UserException("Username may only contain a-Z . _");
         }
-        User user = checkUser.get();
 
-        if (updatedUser.getUsername() != null) {
-            user.setUsername(updatedUser.getUsername());
+        if (userRepository.isUsernameTaken(username.toLowerCase())) {
+            throw new UserException("Username is taken");
         }
+    }
+
+    public void validateEmail(String email) {
+        if (userRepository.isEmailTaken(email.toLowerCase())) {
+            throw new UserException("Email is taken");
+        }
+    }
+
+    public void updateUser(UpdatedUser updatedUser, String name) {
+        User user = getUser(name);
 
         if (updatedUser.getEmail() != null) {
             if (!updatedUser.getEmail().equals(user.getEmail())) {
-                Optional<User> isEmailTaken = getUserByEmail(updatedUser.getEmail());
-
-                if (isEmailTaken.isPresent()) {
-                    throw new UserException("Email is already registered to another user");
-                }
+                validateEmail(updatedUser.getEmail());
             }
             user.setEmail(updatedUser.getEmail());
         }
@@ -241,10 +239,7 @@ public class UserService {
     }
 
     public Quota getUserQuota(String user) {
-        Optional<Quota> userQuota = quotaRepository.findById(user);
-
-        if (!userQuota.isPresent()) throw new UserException("User not found");
-        return userQuota.get();
+        return quotaRepository.findById(user).orElseThrow(()-> new UserException("User not found"));
     }
 
     public long getTotalUsedQuota() {
@@ -255,7 +250,21 @@ public class UserService {
         return new QuotaDTO(quota.getUsed(), quota.getMax(), quota.isIgnoreQuota());
     }
 
+    public HashMap<String, Object> getAllUsers(Pageable pageable) {
+        HashMap<String, Object> users = new HashMap<>();
+        users.put("total", userRepository.getUserCount());
+        users.put("users", usersToDTOs(userRepository.getAllUsers(pageable)));
+
+        return users;
+    }
+
+    public List<UserDTO> usersToDTOs(List<User> users) {
+        return users.stream()
+            .map(this::userToDTO)
+            .collect(Collectors.toList());
+    }
+
     public UserDTO userToDTO(User user) {
-        return new UserDTO(user.getUsername(), user.getEmail(), user.getRole(), user.getEnabled());
+        return new UserDTO(user.getId(), user.getUsername(), user.getEmail(), user.getRole(), user.getEnabled());
     }
 }

@@ -12,9 +12,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import java.util.Date;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,17 +43,14 @@ public class TokenRefreshController {
         if (decodedToken.getExpiresAt().before(new Date())) {
             throw new TokenException("Refresh token is expired");
         }
-        Optional<User> user = userService.getUser(decodedToken.getClaim("user").asString());
+        User user = userService.getUser(decodedToken.getClaim("user").asString());
 
-        if (!user.isPresent()) {
-            throw new UsernameNotFoundException("Username not found");
-        }
         return "Bearer " + JWT.create()
             .withSubject("authToken")
-            .withClaim("userID", user.get().getId())
-            .withClaim("user", user.get().getUsername())
-            .withClaim("role", user.get().getAuthorities().get(0).getAuthority())
-            .withClaim("enabled", user.get().getEnabled())
+            .withClaim("userID", user.getId())
+            .withClaim("user", user.getUsername())
+            .withClaim("role", user.getAuthorities().get(0).getAuthority())
+            .withClaim("enabled", user.getEnabled())
             .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
             .sign(HMAC512(SECRET.getBytes()));
     }

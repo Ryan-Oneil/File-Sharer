@@ -56,7 +56,7 @@ public class ShareLinkService {
         long sizeOfFiles = files.stream().mapToLong(File::length).sum();
         Link link = new Link(generateLinkUUID(UUID_LENGTH), title, user, format.parse(expires), new Date(), sizeOfFiles);
 
-        link.setFiles(generateSharedFiles(files, link));
+        link.setFiles(createSharedFiles(files, link));
         linkRepository.save(link);
 
         //Checks to see if the files parent directory matches the link id
@@ -79,7 +79,7 @@ public class ShareLinkService {
         return true;
     }
 
-    public List<SharedFile> generateSharedFiles(List<File> files, Link link) {
+    public List<SharedFile> createSharedFiles(List<File> files, Link link) {
         return files.stream().map(file -> new SharedFile(generateFileUUID(UUID_LENGTH), file.getName(), file.length(), link))
             .collect(Collectors.toList());
     }
@@ -113,11 +113,7 @@ public class ShareLinkService {
     }
 
     public Link getLinkCheckPresence(String linkID) {
-        Optional<Link> link = getLink(linkID);
-
-        if (!link.isPresent()) throw new ResourceNotFoundException("This shared link doesn't exist");
-
-        return link.get();
+        return getLink(linkID).orElseThrow(() -> new ResourceNotFoundException("This shared link doesn't exist"));
     }
 
     public Link getLinkValidate(String linkID) {
@@ -129,11 +125,7 @@ public class ShareLinkService {
     }
 
     public Link getLinkFileWithValidation(String linkID) {
-        Optional<Link> link = linkRepository.getById(linkID);
-
-        if (!link.isPresent()) throw new ResourceNotFoundException("This shared link doesn't exist");
-
-        return link.get();
+        return linkRepository.getById(linkID).orElseThrow(() -> new ResourceNotFoundException("This shared link doesn't exist"));
     }
 
     public void checkLinkExpiry(Link link) {
@@ -161,26 +153,16 @@ public class ShareLinkService {
         return link;
     }
 
-    public void reduceLinkSize(Link link, long size) {
-        link.setSize(link.getSize() - size);
-        linkRepository.save(link);
-    }
-
-    public void increaseLinkSize(Link link, long size) {
-        link.setSize(link.getSize() + size);
-        linkRepository.save(link);
-    }
-
     public SharedFile deleteFile(String fileID) {
         SharedFile file = checkFileLinkValidation(fileID);
         Link link = file.getLink();
 
-        reduceLinkSize(link, file.getSize());
+        link.setSize(link.getSize() - file.getSize());
+        link.getFiles().remove(file);
+        linkRepository.save(link);
 
         String fileLocation = getFileLocation(link.getCreator().getUsername(), link.getId(), file.getName());
-
         deleteLocalFile(fileLocation);
-        fileRepository.delete(file);
 
         return file;
     }
@@ -242,9 +224,11 @@ public class ShareLinkService {
         Link link = getLinkValidate(linkID);
 
         long sizeOfFiles = files.stream().mapToLong(File::length).sum();
-        List<SharedFile> sharedFiles = generateSharedFiles(files, link);
+        List<SharedFile> sharedFiles = createSharedFiles(files, link);
+        link.setSize(link.getSize() + sizeOfFiles);
 
-        increaseLinkSize(link, sizeOfFiles);
+        linkRepository.save(link);
+        fileRepository.saveAll(sharedFiles);
 
         moveNewFilesToDirectory(files, getLinkDirectory(link.getCreator().getUsername(), link.getId()));
 

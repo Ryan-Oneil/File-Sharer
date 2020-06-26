@@ -1,7 +1,9 @@
 package biz.oneilindustries.filesharer.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -33,7 +35,7 @@ public class Link {
     private long size = 0;
     private long views = 0;
 
-    @OneToMany(mappedBy = "link", orphanRemoval = true)
+    @OneToMany(mappedBy = "link", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<SharedFile> files;
 
     @OneToMany(mappedBy = "link", orphanRemoval = true)
@@ -113,5 +115,12 @@ public class Link {
 
     public void setFiles(List<SharedFile> files) {
         this.files = files;
+    }
+
+    public void addFile(SharedFile file) {
+        if (this.files == null) {
+            this.files = new ArrayList<>();
+        }
+        this.files.add(file);
     }
 }

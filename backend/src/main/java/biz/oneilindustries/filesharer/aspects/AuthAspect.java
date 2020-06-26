@@ -49,7 +49,6 @@ public class AuthAspect {
     @Pointcut("execution(* biz.oneilindustries.filesharer.controller.UserController.updateUserDetails(..))")
     private void updateUserDetails() {}
 
-
     @Before("deleteLink() || addFiles() || editLink()")
     public void hasLinkPermission(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();

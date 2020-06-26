@@ -107,7 +107,7 @@ public class ShareLinkServiceTest {
     public void generateSharedFilesTest() {
         Link testLink = new Link("testLink", "testTitle", testUser, new Date(), new Date(), 0);
 
-        List<SharedFile> files = service.generateSharedFiles(testFiles, testLink);
+        List<SharedFile> files = service.createSharedFiles(testFiles, testLink);
 
         assertThat(files.size()).isEqualTo(testFiles.size());
         assertThat(files.get(0).getLink().getId()).isEqualTo(testLink.getId());
@@ -173,26 +173,4 @@ public class ShareLinkServiceTest {
 
         assertThat(testFile.exists()).isFalse();
     }
-
-    @Test
-    public void reduceLinkSizeTest() {
-        int linkSize = 1500;
-        Link testLink = new Link("testLink", "testTitle", testUser, new Date(), new Date(), linkSize);
-
-        service.reduceLinkSize(testLink, 203);
-
-        assertThat(testLink.getSize()).isEqualTo(linkSize - 203);
-    }
-
-    @Test
-    public void increaseLinkSizeTest() {
-        int linkSize = 1500;
-        Link testLink = new Link("testLink", "testTitle", testUser, new Date(), new Date(), linkSize);
-
-        service.increaseLinkSize(testLink, 203);
-
-        assertThat(testLink.getSize()).isEqualTo(linkSize + 203);
-    }
-
-    
 }

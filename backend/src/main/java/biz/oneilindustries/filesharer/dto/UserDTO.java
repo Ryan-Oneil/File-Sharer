@@ -1,13 +1,15 @@
-package biz.oneilindustries.filesharer.entity;
+package biz.oneilindustries.filesharer.dto;
 
 public class UserDTO {
 
+    private int id;
     private String name;
     private String email;
     private String role;
     private boolean enabled;
 
-    public UserDTO(String name, String email, String role, boolean enabled) {
+    public UserDTO(int id, String name, String email, String role, boolean enabled) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.role = role;
@@ -28,5 +30,13 @@ public class UserDTO {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

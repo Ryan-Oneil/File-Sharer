@@ -3,20 +3,22 @@ package biz.oneilindustries.filesharer.controller;
 import static biz.oneilindustries.filesharer.AppConfig.FRONT_END_URL;
 
 import biz.oneilindustries.filesharer.dto.QuotaDTO;
+import biz.oneilindustries.filesharer.dto.UserDTO;
 import biz.oneilindustries.filesharer.entity.PasswordResetToken;
 import biz.oneilindustries.filesharer.entity.User;
-import biz.oneilindustries.filesharer.entity.UserDTO;
 import biz.oneilindustries.filesharer.entity.VerificationToken;
 import biz.oneilindustries.filesharer.eventlisteners.OnRegistrationCompleteEvent;
 import biz.oneilindustries.filesharer.service.EmailSender;
 import biz.oneilindustries.filesharer.service.UserService;
 import biz.oneilindustries.filesharer.validation.LoginForm;
 import biz.oneilindustries.filesharer.validation.UpdatedUser;
+import java.util.HashMap;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -45,16 +47,6 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity registerUser(@RequestBody @Valid LoginForm loginForm, HttpServletRequest request) {
-        Optional<User> user = userService.getUser(loginForm.getUsername());
-
-        if (user.isPresent()) {
-            return ResponseEntity.badRequest().body("An account with this username already exists");
-        }
-        user = userService.getUserByEmail(loginForm.getEmail());
-
-        if (user.isPresent()) {
-            return ResponseEntity.badRequest().body("An account with this email already exists");
-        }
         User newUser = userService.registerUser(loginForm);
 
         eventPublisher.publishEvent(new OnRegistrationCompleteEvent
@@ -113,7 +105,7 @@ public class UserController {
 
     @GetMapping("/{username}/details")
     public ResponseEntity<UserDTO> getUserDetails(@PathVariable String username, Authentication user) {
-        return ResponseEntity.ok(userService.userToDTO(userService.checkUserExists(username)));
+        return ResponseEntity.ok(userService.userToDTO(userService.getUser(username)));
     }
 
     @PutMapping("/{username}/details/update")
@@ -127,5 +119,10 @@ public class UserController {
     @GetMapping("/admin/users/quota/used")
     public ResponseEntity<Long> getUsedQuota() {
         return ResponseEntity.ok(userService.getTotalUsedQuota());
+    }
+
+    @GetMapping("/admin/users")
+    public ResponseEntity<HashMap<String, Object>> getAllUsers(Pageable pageable) {
+        return ResponseEntity.ok(userService.getAllUsers(pageable));
     }
 }

@@ -29,7 +29,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @Service
 public class SystemFileService {
 
-    private static final Logger logger = LogManager.getLogger(ShareLinkService.class);
+    private static final Logger logger = LogManager.getLogger(SystemFileService.class);
 
     public List<File> handleFileUpload(HttpServletRequest request, long uploadLimit, String destination, boolean generateRandomName)
         throws IOException, FileUploadException {
@@ -56,7 +56,7 @@ public class SystemFileService {
 
             uploadedFiles.add(file);
         }
-        if (uploadedFiles.size() <= 0) throw new LinkException("No files uploaded");
+        if (uploadedFiles.isEmpty()) throw new LinkException("No files uploaded");
         return uploadedFiles;
     }
 
