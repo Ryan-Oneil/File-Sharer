@@ -158,7 +158,7 @@ public class ShareLinkService {
         Link link = file.getLink();
 
         link.setSize(link.getSize() - file.getSize());
-        link.getFiles().remove(file);
+        fileRepository.delete(file);
         linkRepository.save(link);
 
         String fileLocation = getFileLocation(link.getCreator().getUsername(), link.getId(), file.getName());
