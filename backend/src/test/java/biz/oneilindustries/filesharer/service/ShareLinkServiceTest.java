@@ -19,15 +19,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ShareLinkServiceTest {
 
     @MockBean
@@ -44,7 +44,7 @@ public class ShareLinkServiceTest {
     private static final File testDirectory = new File(String.format(BASE_USER_DIRECTORY, testUser.getUsername()));
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException, ParseException {
         service = new ShareLinkService(linkRepository, fileRepository, viewRepository);
         String testLocation = String.format(SHARED_LINK_DIRECTORY, testUser.getUsername());
@@ -70,7 +70,7 @@ public class ShareLinkServiceTest {
         Mockito.when(fileRepository.getById("testFile")).thenReturn(Optional.of(sharedFile));
     }
 
-    @AfterClass
+    @AfterAll
     public static void deleteSetup() {
         try {
             FileUtils.deleteDirectory(testDirectory);

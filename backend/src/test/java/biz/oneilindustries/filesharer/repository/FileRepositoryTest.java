@@ -8,16 +8,16 @@ import biz.oneilindustries.filesharer.entity.SharedFile;
 import biz.oneilindustries.filesharer.entity.User;
 import java.util.Date;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @DataJpaTest
 @ContextConfiguration(classes = AppConfig.class)
 public class FileRepositoryTest {
@@ -28,7 +28,7 @@ public class FileRepositoryTest {
     @Autowired
     private FileRepository fileRepository;
 
-    @Before
+    @BeforeEach
     public void setupDatabase() {
         User user = new User("UnitTest", "test");
         Link link = new Link("testLink", "test", user, new Date(), new Date(), 230);
