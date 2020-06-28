@@ -10,6 +10,9 @@ import DashboardOutlined from "@ant-design/icons/lib/icons/DashboardOutlined";
 import ViewAllLinks from "./ViewAllLinks";
 import FileOutlined from "@ant-design/icons/lib/icons/FileOutlined";
 import EditLinkPage from "../FileShare/EditLinkPage";
+import UserOutlined from "@ant-design/icons/lib/icons/UserOutlined";
+import Users from "./Users";
+import EditUser from "./ManageUser";
 
 class AdminRouting extends React.Component {
   render() {
@@ -17,7 +20,8 @@ class AdminRouting extends React.Component {
     const { Sider, Content } = Layout;
     const adminLinks = [
       { path: "", icon: <DashboardOutlined />, name: "Stats" },
-      { path: "/files", icon: <FileOutlined />, name: "Files" }
+      { path: "/files", icon: <FileOutlined />, name: "Files" },
+      { path: "/users", icon: <UserOutlined />, name: "Users" }
     ];
 
     return (
@@ -40,6 +44,12 @@ class AdminRouting extends React.Component {
                   exact
                   path={`${match.path}/files/edit/:linkID`}
                   component={EditLinkPage}
+                />
+                <Route exact path={`${match.path}/users`} component={Users} />
+                <Route
+                  exact
+                  path={`${match.path}/users/:user`}
+                  component={EditUser}
                 />
               </PrivateRoute>
             </Switch>
