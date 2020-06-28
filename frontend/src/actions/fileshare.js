@@ -12,7 +12,7 @@ import {
   EDIT_LINK,
   GET_ADMIN_LINK_STATS,
   GET_LINK_DETAILS,
-  GET_POPULAR_LINKS,
+  ADMIN_GET_POPULAR_LINKS,
   GET_SHARED_FILES,
   GET_SHARED_FILES_PAGEABLE,
   GET_USER_LINK_COUNT,
@@ -20,10 +20,12 @@ import {
   UPLOADER_ADD_FILE,
   UPLOADER_REMOVE_FILE,
   UPLOADER_RESET,
-  UPLOADER_SET_LIMIT_REACHED
+  UPLOADER_SET_LIMIT_REACHED,
+  ADMIN_GET_USER_LINKS,
+  ADMIN_GET_USER_FILESHARE_STATS
 } from "./types";
 import { setError } from "./errors";
-import { getApiError } from "../helpers";
+import { getApiError, getFilterSort } from "../helpers";
 
 export const deleteLink = linkID => dispatch => {
   apiDeleteCall(`/delete/${linkID}`)
@@ -124,7 +126,7 @@ export const getPopularLinksPageable = (
 ) => dispatch => {
   return getLinksPageable("/admin/links", page, size, sortAttribute)
     .then(response =>
-      dispatch({ type: GET_POPULAR_LINKS, payload: response.data })
+      dispatch({ type: ADMIN_GET_POPULAR_LINKS, payload: response.data })
     )
     .catch(error => dispatch(setError(getApiError(error))));
 };
@@ -139,7 +141,7 @@ export const getLinksPageable = (endpoint, page, size, sortAttribute) => {
 };
 
 export const getRecentLinks = size => dispatch => {
-  return getLinksPageable("/admin/links", 0, size, "creationDate")
+  return getLinksPageable("/admin/links", 0, size, "creationDate,desc")
     .then(response =>
       dispatch({ type: ADMIN_GET_RECENT_LINKS, payload: response.data })
     )
@@ -154,31 +156,40 @@ export const getUserLinkCount = user => dispatch => {
     .catch(error => dispatch(setError(getApiError(error))));
 };
 
-export const getUserLinks = (
+const baseGetUserLinks = (
   username,
   page,
   size,
   sorter = { order: "", field: "" }
-) => dispatch => {
+) => {
   return getLinksPageable(
     `/user/${username}/links`,
     page,
     size,
     getFilterSort(sorter)
-  )
+  );
+};
+
+export const getUserLinks = (username, page, size, sorter) => dispatch => {
+  return baseGetUserLinks(username, page, size, sorter)
     .then(response =>
       dispatch({ type: GET_SHARED_FILES, payload: response.data })
     )
     .catch(error => dispatch(setError(getApiError(error))));
 };
 
-const getFilterSort = sorter => {
-  let order = "";
+export const adminGetUserLinks = (username, page, size, sorter) => dispatch => {
+  return baseGetUserLinks(username, page, size, sorter)
+    .then(response =>
+      dispatch({ type: ADMIN_GET_USER_LINKS, payload: response.data })
+    )
+    .catch(error => dispatch(setError(getApiError(error))));
+};
 
-  if (sorter.order === "ascend") {
-    order = "asc";
-  } else if (sorter.order === "descend") {
-    order = "desc";
-  }
-  return `${sorter.field},${order}`;
+export const getUserFileStats = username => dispatch => {
+  return apiGetCall(`/user/${username}/links/stats`)
+    .then(response =>
+      dispatch({ type: ADMIN_GET_USER_FILESHARE_STATS, payload: response.data })
+    )
+    .catch(error => dispatch(setError(getApiError(error))));
 };
