@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ant-design/icons": "^4.1.0",
+    "@ant-design/icons": "^4.2.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
-    "antd": "^4.2.4",
+    "antd": "^4.3.4",
     "axios": "^0.19.2",
     "customize-cra": "^0.9.1",
     "formik": "^2.1.4",
@@ -19,7 +19,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.3.1",
     "redux": "^4.0.5",
-    "redux-form": "^8.3.5",
+    "redux-form": "^8.3.6",
     "redux-thunk": "^2.3.0"
   },
   "scripts": {
