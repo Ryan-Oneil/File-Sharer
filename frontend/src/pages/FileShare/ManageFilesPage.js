@@ -1,54 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { Button, Card, Table, Tooltip } from "antd";
+import React from "react";
+import { Button, Card, Tooltip } from "antd";
 import EditOutlined from "@ant-design/icons/lib/icons/EditOutlined";
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
 import { displayBytesInReadableForm } from "../../helpers";
 import EyeOutlined from "@ant-design/icons/lib/icons/EyeOutlined";
-import DownloadOutlined from "@ant-design/icons/lib/icons/DownloadOutlined";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import {
-  deleteLink,
-  getUserLinkCount,
-  getUserLinks
-} from "../../actions/fileshare";
-import { BASE_URL } from "../../apis/api";
+import { deleteLink, getUserLinks } from "../../actions/fileshare";
 import ConfirmButton from "../../components/ConfirmButton";
+import PaginationTable from "../../components/Tables/PaginationTable";
 
 const ManageFilePage = props => {
   const { activeFiles } = props.fileSharer;
   const { totalLinks } = props.fileSharer.stats;
   const { match } = props;
-  const [loadingData, setLoadingData] = useState(true);
   const { name } = props.auth.user;
-
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-    total: totalLinks
-  });
-
-  const loadLinks = ({ current, pageSize }, sorter) => {
-    setLoadingData(true);
-
-    //current is always reduced by 1 since backend starts page at 0 while frontend starts at 1
-    props
-      .getUserLinks(name, current - 1, pageSize, sorter)
-      .then(() => setLoadingData(false));
-  };
-
-  useEffect(() => {
-    if (totalLinks === 0 && activeFiles.length === 0) {
-      props.getUserLinkCount(name);
-    }
-    loadLinks(pagination, { field: "creationDate", order: "descend" });
-  }, []);
-
-  useEffect(() => {
-    setPagination(prevState => {
-      return { ...prevState, total: totalLinks };
-    });
-  }, [totalLinks]);
 
   const columns = [
     {
@@ -92,15 +58,6 @@ const ManageFilePage = props => {
               }}
             />
           </Tooltip>
-          <Tooltip title="Download">
-            <Button
-              shape="circle"
-              icon={<DownloadOutlined />}
-              onClick={() => {
-                window.open(`${BASE_URL}/download/${record.id}`, "_blank");
-              }}
-            />
-          </Tooltip>
           <Tooltip title="Edit">
             <Link to={`${match.path}/edit/${record.id}`}>
               <Button shape="circle" icon={<EditOutlined />} />
@@ -108,6 +65,7 @@ const ManageFilePage = props => {
           </Tooltip>
           <ConfirmButton
             toolTip="Delete"
+            shape="circle"
             buttonIcon={<DeleteOutlined />}
             confirmAction={() => props.deleteLink(record.id)}
             modalTitle="Do you want to delete this link?"
@@ -118,19 +76,16 @@ const ManageFilePage = props => {
     }
   ];
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    setPagination(pagination);
-    loadLinks(pagination, sorter);
-  };
   return (
     <Card title="My Shared Links">
-      <Table
-        dataSource={activeFiles}
+      <PaginationTable
+        totalData={totalLinks}
+        data={activeFiles}
         columns={columns}
-        rowKey={link => link.id}
-        pagination={pagination}
-        loading={loadingData}
-        onChange={handleTableChange}
+        fetchData={(page, size, sorter) =>
+          props.getUserLinks(name, page, size, sorter)
+        }
+        defaultSort={{ field: "creationDate", order: "descend" }}
       />
     </Card>
   );
@@ -140,6 +95,5 @@ const mapStateToProps = state => {
 };
 export default connect(mapStateToProps, {
   getUserLinks,
-  deleteLink,
-  getUserLinkCount
+  deleteLink
 })(ManageFilePage);

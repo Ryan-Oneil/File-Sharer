@@ -27,3 +27,14 @@ export const getDateWithAddedDays = days => {
 
   return date;
 };
+
+export const getFilterSort = sorter => {
+  let order = "";
+
+  if (sorter.order === "ascend") {
+    order = "asc";
+  } else if (sorter.order === "descend") {
+    order = "desc";
+  }
+  return `${sorter.field},${order}`;
+};

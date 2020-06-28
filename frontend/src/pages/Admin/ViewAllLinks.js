@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Button, Card, Table, Tooltip } from "antd";
+import React, { useEffect } from "react";
+import { Button, Card, Tooltip } from "antd";
 import { displayBytesInReadableForm } from "../../helpers";
 import { connect } from "react-redux";
 import {
@@ -9,38 +9,17 @@ import {
 } from "../../actions/fileshare";
 import EditOutlined from "@ant-design/icons/lib/icons/EditOutlined";
 import { Link } from "react-router-dom";
+import LinkTable from "../../components/Tables/PaginationTable";
 
 const ViewAllLinks = props => {
   const { match } = props;
-  const { activeFiles, totalLinks } = props.fileSharer.adminStats;
-  const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-    total: totalLinks
-  });
-
-  const loadLinks = ({ current, pageSize }, sorter) => {
-    setLoading(true);
-
-    //current is always reduced by 1 since backend starts page at 0 while frontend starts at 1
-    props
-      .getAllLinksPageable(current - 1, pageSize, sorter)
-      .then(() => setLoading(false));
-  };
+  const { activeFiles, totalLinks } = props.admin.fileShare;
 
   useEffect(() => {
     if (totalLinks === 0 && activeFiles.length === 0) {
       props.getAdminLinkStats();
     }
-    loadLinks(pagination, { field: "creationDate", order: "descend" });
   }, []);
-
-  useEffect(() => {
-    setPagination(prevState => {
-      return { ...prevState, total: totalLinks };
-    });
-  }, [totalLinks]);
 
   const columns = [
     {
@@ -89,31 +68,20 @@ const ViewAllLinks = props => {
     }
   ];
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    setPagination(pagination);
-    loadLinks(pagination, sorter);
-  };
-
   return (
     <Card>
-      <Table
-        dataSource={activeFiles}
+      <LinkTable
+        data={activeFiles}
         columns={columns}
-        rowKey={link => link.id}
-        pagination={pagination}
-        loading={loading}
-        onChange={handleTableChange}
+        totalData={totalLinks}
+        fetchData={props.getAllLinksPageable}
+        defaultSort={{ field: "creationDate", order: "descend" }}
       />
-      {/*<Tabs defaultActiveKey="1">*/}
-      {/*  <TabPane tab="Active" key="1" style={{ outline: "none" }}>*/}
-      {/*    {activeLinkList()}*/}
-      {/*  </TabPane>*/}
-      {/*</Tabs>*/}
     </Card>
   );
 };
 const mapStateToProps = state => {
-  return { fileSharer: state.fileSharer };
+  return { admin: state.admin };
 };
 export default connect(mapStateToProps, {
   deleteLink,
