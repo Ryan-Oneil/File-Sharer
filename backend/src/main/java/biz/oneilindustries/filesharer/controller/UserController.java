@@ -105,7 +105,7 @@ public class UserController {
 
     @GetMapping("/{username}/details")
     public ResponseEntity<UserDTO> getUserDetails(@PathVariable String username, Authentication user) {
-        return ResponseEntity.ok(userService.userToDTO(userService.getUser(username)));
+        return ResponseEntity.ok(userService.getUserStats(username));
     }
 
     @PutMapping("/{username}/details/update")

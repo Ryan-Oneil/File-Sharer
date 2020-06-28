@@ -158,8 +158,8 @@ public class FileSharingController {
 //    User related APIs
 
     @GetMapping("/user/{username}/links")
-    public ResponseEntity<List<LinkDTO>> displayUsersLink(@PathVariable String username, Authentication user, Pageable pageable) {
-        List<LinkDTO> links = linkService.getUserLinks(username, pageable);
+    public ResponseEntity<HashMap<String, Object>> displayUsersLink(@PathVariable String username, Authentication user, Pageable pageable) {
+        HashMap<String, Object> links = linkService.getUserLinks(username, pageable);
 
         return ResponseEntity.ok(links);
     }

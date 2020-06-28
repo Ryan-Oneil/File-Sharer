@@ -275,13 +275,9 @@ public class ShareLinkService {
 
     public HashMap<String, Object> getUserStats(String user) {
         HashMap<String, Object> stats = new HashMap<>();
-        List<LinkDTO> recentLinks = linksToDTO(linkRepository.findTop5ByCreator_UsernameOrderByCreationDateDesc(user));
-        List<LinkDTO> mostViewedLinks = linksToDTO(linkRepository.findTop5ByCreator_UsernameOrderByViewsDesc(user));
 
         stats.put("totalLinks", linkRepository.getUserLinkCount(user));
         stats.put("totalViews", linkRepository.getUserTotalViews(user));
-        stats.put("mostViewed", mostViewedLinks);
-        stats.put("recentShared", recentLinks);
 
         return stats;
     }
@@ -317,8 +313,12 @@ public class ShareLinkService {
         return linkRepository.getUserLinkCount(username);
     }
 
-    public List<LinkDTO> getUserLinks(String username, Pageable pageable) {
-        return linksToDTO(linkRepository.getAllByCreator_Username(username, pageable));
+    public HashMap<String, Object> getUserLinks(String username, Pageable pageable) {
+        HashMap<String, Object> pageableLinks = new HashMap<>();
+        pageableLinks.put("total", linkRepository.getUserLinkCount(username));
+        pageableLinks.put("links", linksToDTO(linkRepository.getAllByCreator_Username(username, pageable)));
+
+        return pageableLinks;
     }
 
     public List<LinkDTO> linksToDTO(List<Link> links) {
