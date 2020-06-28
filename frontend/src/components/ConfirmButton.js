@@ -9,7 +9,8 @@ export default ({
   confirmAction,
   modalTitle,
   modalDescription,
-  toolTip
+  toolTip,
+  shape
 }) => {
   const showDeleteConfirm = () => {
     confirm({
@@ -32,6 +33,7 @@ export default ({
         onClick={showDeleteConfirm}
         type="primary"
         danger
+        shape={shape}
       >
         {buttonText}
       </Button>
