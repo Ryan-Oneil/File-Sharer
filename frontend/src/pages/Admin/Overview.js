@@ -18,18 +18,18 @@ const Overview = props => {
     totalLinks,
     mostViewed,
     recentShared
-  } = props.fileSharer.adminStats;
+  } = props.admin.fileShare;
 
   const [recentLinksLoading, setRecentLinksLoading] = useState(true);
   const [popularLinksLoading, setPopularLinksLoading] = useState(true);
-  const { totalUsed } = props.user.admin;
+  const { totalUsed } = props.admin;
 
   useEffect(() => {
     props.getAdminLinkStats();
     props.getUsedStorage();
     props.getRecentLinks(5).then(() => setRecentLinksLoading(false));
     props
-      .getPopularLinksPageable(0, 5, "views")
+      .getPopularLinksPageable(0, 5, "views,desc")
       .then(() => setPopularLinksLoading(false));
   }, []);
 
@@ -118,7 +118,7 @@ const Overview = props => {
   );
 };
 const mapStateToProps = state => {
-  return { fileSharer: state.fileSharer, user: state.user };
+  return { admin: state.admin };
 };
 export default connect(mapStateToProps, {
   getAdminLinkStats,

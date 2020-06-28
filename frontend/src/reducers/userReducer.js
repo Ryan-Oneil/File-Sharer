@@ -1,17 +1,17 @@
 import {
   CHANGE_USER_EMAIL,
   GET_QUOTA_STATS,
-  GET_TOTAL_USED_QUOTA,
+  ADMIN_GET_TOTAL_QUOTA_USED,
   GET_USER_DETAILS,
-  GET_USER_STATS
+  GET_USER_STATS,
+  ADMIN_GET_USERS
 } from "../actions/types";
 
 export default (
   state = {
     details: { name: "", email: "", role: "" },
     //Default quota given is 25gb
-    storageQuota: { used: 0, max: 25 },
-    admin: { totalUsed: 0 }
+    storageQuota: { used: 0, max: 25 }
   },
   action
 ) => {
@@ -27,9 +27,6 @@ export default (
     }
     case CHANGE_USER_EMAIL: {
       return { ...state, details: { ...state.details, email: action.email } };
-    }
-    case GET_TOTAL_USED_QUOTA: {
-      return { ...state, admin: { totalUsed: action.payload } };
     }
     default: {
       return { ...state };
