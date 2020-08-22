@@ -7,7 +7,7 @@ public class UserDTO {
     private String email;
     private String role;
     private boolean enabled;
-    private QuotaDTO quota;
+    private QuotaDTO quota = new QuotaDTO(0, 0, false);
 
     public UserDTO(int id, String name, String email, String role, boolean enabled) {
         this.id = id;

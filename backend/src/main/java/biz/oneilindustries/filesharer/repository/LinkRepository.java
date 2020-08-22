@@ -30,12 +30,12 @@ public interface  LinkRepository extends PagingAndSortingRepository<Link, String
     @Query("select count(l) from Link l where l.creator.username = ?1")
     Integer getUserLinkCount(String username);
 
-    @Query("select sum (l.views) from Link l where l.creator.username = ?1")
+    @Query("select COALESCE(sum (l.views), 0) from Link l where l.creator.username = ?1")
     Long getUserTotalViews(String username);
 
     List<Link> findTop5ByCreator_UsernameOrderByViewsDesc(String username);
 
-    @Query("select sum (l.views) from Link l")
+    @Query("select COALESCE(sum(l.views), 0) from Link l")
     long getTotalViews();
 
     @Query("select count (l) from Link l")
