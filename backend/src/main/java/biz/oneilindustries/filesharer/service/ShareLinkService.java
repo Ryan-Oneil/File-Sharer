@@ -278,6 +278,8 @@ public class ShareLinkService {
 
         stats.put("totalLinks", linkRepository.getUserLinkCount(user));
         stats.put("totalViews", linkRepository.getUserTotalViews(user));
+        stats.put("recentLinks", linksToDTO(linkRepository.getTop5ByCreator_UsernameOrderByCreationDateDesc(user)));
+        stats.put("mostViewedLinks", linksToDTO(linkRepository.getTop5ByCreator_UsernameOrderByViewsDesc(user)));
 
         return stats;
     }
@@ -301,12 +303,18 @@ public class ShareLinkService {
         stats.put("totalLinks", linkRepository.getTotalLinks());
         stats.put("totalViews", linkRepository.getTotalViews());
         stats.put("totalFiles", fileRepository.getTotalFiles());
+        stats.put("recentShared", linksToDTO(linkRepository.findTop5ByOrderByIdDesc()));
+        stats.put("mostViewed", linksToDTO(linkRepository.findTop5ByOrderByViewsDesc()));
 
         return stats;
     }
 
-    public List<LinkDTO> getLinksPageable(Pageable pageable) {
-        return linksToDTO(linkRepository.findAll(pageable).toList());
+    public HashMap<String, Object> getLinksPageable(Pageable pageable) {
+        HashMap<String, Object> links = new HashMap<>();
+        links.put("links", linksToDTO(linkRepository.findAll(pageable).toList()));
+        links.put("total", linkRepository.count());
+
+        return links;
     }
 
     public Integer getUserTotalLinkCount(String username) {

@@ -42,4 +42,8 @@ public interface  LinkRepository extends PagingAndSortingRepository<Link, String
     Long getTotalLinks();
 
     List<Link> getAllByCreator_Username(String username, Pageable pageable);
+    List<Link> getTop5ByCreator_UsernameOrderByCreationDateDesc(String username);
+    List<Link> getTop5ByCreator_UsernameOrderByViewsDesc(String username);
+    List<Link> findTop5ByOrderByIdDesc();
+    List<Link> findTop5ByOrderByViewsDesc();
 }
