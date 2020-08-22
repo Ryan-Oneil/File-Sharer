@@ -1,36 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Avatar, Col, List, Row } from "antd";
-
 import StatisticCard from "../../components/Stats/StatisticCard";
 import ListCard from "../../components/Stats/ListCard";
 import { displayBytesInReadableForm } from "../../helpers";
-import {
-  getAdminLinkStats,
-  getPopularLinksPageable,
-  getRecentLinks
-} from "../../actions/fileshare";
-import { getUsedStorage } from "../../actions/user";
+import { getAdminLinkStats, getUsedStorage } from "../../reducers/adminReducer";
 
-const Overview = props => {
-  const {
-    totalViews,
-    totalLinks,
-    mostViewed,
-    recentShared
-  } = props.admin.fileShare;
-
-  const [recentLinksLoading, setRecentLinksLoading] = useState(true);
-  const [popularLinksLoading, setPopularLinksLoading] = useState(true);
-  const { totalUsed } = props.admin;
+export default () => {
+  const { admin } = useSelector(state => state);
+  const { totalViews, totalLinks, mostViewed, recentShared } = admin.fileShare;
+  const dispatch = useDispatch();
+  const [loadingData, setLoadingData] = useState(true);
+  const { totalUsed } = admin;
 
   useEffect(() => {
-    props.getAdminLinkStats();
-    props.getUsedStorage();
-    props.getRecentLinks(5).then(() => setRecentLinksLoading(false));
-    props
-      .getPopularLinksPageable(0, 5, "views,desc")
-      .then(() => setPopularLinksLoading(false));
+    dispatch(getAdminLinkStats()).then(() => setLoadingData(false));
+    dispatch(getUsedStorage());
   }, []);
 
   return (
@@ -58,7 +43,7 @@ const Overview = props => {
             title="Popular Links"
             itemLayout="horizontal"
             dataSource={mostViewed}
-            loading={popularLinksLoading}
+            loading={loadingData}
             renderItem={item => (
               <List.Item>
                 <List.Item.Meta
@@ -88,7 +73,7 @@ const Overview = props => {
             title="Recent Links"
             itemLayout="horizontal"
             dataSource={recentShared}
-            loading={recentLinksLoading}
+            loading={loadingData}
             renderItem={item => (
               <List.Item>
                 <List.Item.Meta
@@ -117,12 +102,3 @@ const Overview = props => {
     </>
   );
 };
-const mapStateToProps = state => {
-  return { admin: state.admin };
-};
-export default connect(mapStateToProps, {
-  getAdminLinkStats,
-  getUsedStorage,
-  getRecentLinks,
-  getPopularLinksPageable
-})(Overview);

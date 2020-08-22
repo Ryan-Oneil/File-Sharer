@@ -1,12 +1,13 @@
 import React from "react";
 import { Avatar, Dropdown, Menu } from "antd";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import UserOutlined from "@ant-design/icons/lib/icons/UserOutlined";
 import LogoutOutlined from "@ant-design/icons/lib/icons/LogoutOutlined";
 import { Link } from "react-router-dom";
-import { logoutUser } from "../../actions";
+import { logoutUser } from "../../reducers/authReducer";
 
-const dropdown = props => {
+const UserDropdown = props => {
+  const dispatch = useDispatch();
   const { name, avatar } = props.auth.user;
 
   const menuHeaderDropdown = (
@@ -18,7 +19,7 @@ const dropdown = props => {
         </Link>
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="logout" onClick={() => props.logoutUser()}>
+      <Menu.Item key="logout" onClick={() => dispatch(logoutUser())}>
         <LogoutOutlined />
         Logout
       </Menu.Item>
@@ -40,4 +41,4 @@ const mapStateToProps = state => {
     auth: state.auth
   };
 };
-export default connect(mapStateToProps, { logoutUser })(dropdown);
+export default connect(mapStateToProps)(UserDropdown);

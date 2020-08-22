@@ -1,13 +1,14 @@
 import { Button, Modal } from "antd";
 import React from "react";
-import { connect } from "react-redux";
-import { clearError, disableError } from "../actions/errors";
+import { useDispatch } from "react-redux";
+import { clearError, disableError } from "../reducers/globalErrorReducer";
 
-const ErrorModal = props => {
+export default props => {
   const { message } = props;
+  const dispatch = useDispatch();
 
   const closeModal = () => {
-    props.clearError();
+    dispatch(clearError());
   };
 
   return (
@@ -17,10 +18,14 @@ const ErrorModal = props => {
       onOk={closeModal}
       title="An Error Occurred"
       footer={[
-        <Button key="disable" onClick={() => props.disableError()}>
+        <Button key="disable" onClick={() => dispatch(disableError())}>
           Disable
         </Button>,
-        <Button key="confirm" type="primary" onClick={() => props.clearError()}>
+        <Button
+          key="confirm"
+          type="primary"
+          onClick={() => dispatch(clearError())}
+        >
           Ok
         </Button>
       ]}
@@ -29,4 +34,3 @@ const ErrorModal = props => {
     </Modal>
   );
 };
-export default connect(null, { clearError, disableError })(ErrorModal);

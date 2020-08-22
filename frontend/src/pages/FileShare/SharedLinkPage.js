@@ -13,11 +13,11 @@ import {
 import { displayBytesInReadableForm, getApiError } from "../../helpers";
 import DownloadOutlined from "@ant-design/icons/lib/icons/DownloadOutlined";
 import { apiGetCall, BASE_URL } from "../../apis/api";
-import { connect } from "react-redux";
-import { setError } from "../../actions/errors";
 import ListCard from "../../components/Stats/ListCard";
+import { useDispatch } from "react-redux";
+import { clearError, setError } from "../../reducers/globalErrorReducer";
 
-const Page = props => {
+export default props => {
   const [link, setLink] = useState({
     title: "",
     id: "",
@@ -26,6 +26,7 @@ const Page = props => {
     size: 0,
     files: []
   });
+  const dispatch = useDispatch();
   const { id } = props.match.params;
   const [loadingData, setLoadingData] = useState(true);
   const [invalidLink, setInvalidLink] = useState(false);
@@ -34,15 +35,14 @@ const Page = props => {
     apiGetCall(`/info/${id}`)
       .then(response => {
         setLink(response.data);
-        setError("");
+        dispatch(clearError());
         setLoadingData(false);
       })
       .catch(error => {
-        console.log(error.response.status);
         if (error.response && error.response.status === 404) {
           setInvalidLink(true);
         } else {
-          props.setError(getApiError(error));
+          dispatch(setError(getApiError(error)));
         }
       });
   };
@@ -124,4 +124,3 @@ const Page = props => {
     </>
   );
 };
-export default connect(null, { setError })(Page);

@@ -1,14 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { Field, withFormik } from "formik";
 import { ErrorDisplay, InputWithErrors } from "./index";
 import { Alert, Button, Card, DatePicker } from "antd";
 import moment from "moment";
 import { getApiError, getDateWithAddedDays } from "../../helpers";
-import { resetUploader, uploadFiles } from "../../actions/fileshare";
-import { connect } from "react-redux";
+import { uploadFiles } from "../../reducers/fileReducer";
 
 const LinkForm = props => {
-  const { files, reachedLimit } = props.fileSharer.linkUpload;
   const {
     isValid,
     isSubmitting,
@@ -17,7 +15,8 @@ const LinkForm = props => {
     handleSubmit,
     values,
     status,
-    setStatus
+    setStatus,
+    files
   } = props;
 
   const onDateChange = date => {
@@ -51,12 +50,7 @@ const LinkForm = props => {
           type="primary"
           htmlType="submit"
           className="form-button"
-          disabled={
-            !isValid ||
-            isSubmitting ||
-            (files && files.length === 0) ||
-            reachedLimit
-          }
+          disabled={!isValid || isSubmitting || (files && files.length === 0)}
           style={{ marginTop: 24 }}
           loading={isSubmitting}
         >
@@ -71,20 +65,12 @@ const LinkForm = props => {
             onClose={() => setStatus("")}
           />
         )}
-        {reachedLimit && (
-          <Alert
-            message="Files exceed your remaining storage quota"
-            type="warning"
-            closable
-            showIcon
-          />
-        )}
       </form>
     </Card>
   );
 };
 
-const ShareLinkForm = withFormik({
+export default withFormik({
   mapPropsToValues: props => ({
     title: props.title ? props.title : "",
     expires: props.expires ? props.expires : moment(getDateWithAddedDays(14))
@@ -103,7 +89,7 @@ const ShareLinkForm = withFormik({
     return errors;
   },
   handleSubmit: (values, { setStatus, resetForm, props }) => {
-    const { files } = props.fileSharer.linkUpload;
+    const { files } = props;
     let params = {
       title: values.title,
       expires: values.expires.toISOString().replace(/\.[0-9]{3}/, "")
@@ -112,15 +98,9 @@ const ShareLinkForm = withFormik({
       .then(response => {
         resetForm();
         setStatus({ msg: response.data, type: "success" });
-        props.resetUploader();
+        props.resetFiles();
       })
       .catch(error => setStatus({ msg: getApiError(error), type: "error" }));
   },
   validateOnMount: true
 })(LinkForm);
-
-const mapStateToProp = state => {
-  return { fileSharer: state.fileSharer };
-};
-
-export default connect(mapStateToProp, { resetUploader })(ShareLinkForm);

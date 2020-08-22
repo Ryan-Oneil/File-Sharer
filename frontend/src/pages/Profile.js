@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Button, Card, Col, Dropdown, Menu, Modal, Row } from "antd";
 import ChangePasswordForm from "../components/form/ChangePasswordForm";
 import SettingOutlined from "@ant-design/icons/lib/icons/SettingOutlined";
 import EmailForm from "../components/form/EmailForm";
-import {
-  changeUserEmail,
-  changeUserPassword,
-  getUserDetails
-} from "../actions/user";
+import { getUserDetails, updateEmail } from "../reducers/userReducer";
+import { changeUserPassword } from "../reducers/adminReducer";
 
-const Profile = props => {
+export default () => {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
-  const { name, email, role, enabled } = props.user.details;
-  const userName = props.auth.user.name;
+  const { name, email, role, enabled } = useSelector(
+    state => state.user.details
+  );
+  const userName = useSelector(state => state.auth.user.name);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    props.getUserDetails(userName);
+    dispatch(getUserDetails(userName));
   }, []);
 
   const actions = (
@@ -45,7 +45,7 @@ const Profile = props => {
       >
         <ChangePasswordForm
           action={password =>
-            changeUserPassword(userName, password).then(() =>
+            dispatch(changeUserPassword(userName, password)).then(() =>
               setShowPasswordForm(false)
             )
           }
@@ -64,9 +64,9 @@ const Profile = props => {
       >
         <EmailForm
           action={email =>
-            props
-              .changeUserEmail(userName, email)
-              .then(() => setShowEmailForm(false))
+            dispatch(updateEmail(userName, email)).then(() =>
+              setShowEmailForm(false)
+            )
           }
         />
       </Modal>
@@ -101,15 +101,3 @@ const Profile = props => {
     </>
   );
 };
-
-const mapStateToProps = state => {
-  return {
-    user: state.user,
-    auth: state.auth
-  };
-};
-
-export default connect(mapStateToProps, {
-  getUserDetails,
-  changeUserEmail
-})(Profile);

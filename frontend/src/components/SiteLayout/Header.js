@@ -1,7 +1,6 @@
 import React from "react";
 import { Layout, Menu } from "antd";
 import { connect } from "react-redux";
-import { logoutUser } from "../../actions";
 import { NavLink } from "react-router-dom";
 import LoginOutlined from "@ant-design/icons/lib/icons/LoginOutlined";
 import UserDropDown from "./UserDropDown";
@@ -43,4 +42,4 @@ const mapStateToProps = state => {
   return { auth: state.auth };
 };
 
-export default connect(mapStateToProps, { logoutUser })(NavHeader);
+export default connect(mapStateToProps)(NavHeader);

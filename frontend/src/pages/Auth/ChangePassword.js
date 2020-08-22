@@ -1,10 +1,11 @@
 import React from "react";
 import { Card } from "antd";
-import { connect } from "react-redux";
-import { changePassword } from "../../actions";
+import { connect, useDispatch } from "react-redux";
 import ChangePasswordForm from "../../components/form/ChangePasswordForm";
+import { changePassword } from "../../reducers/authReducer";
 
 const ResetPassword = props => {
+  const dispatch = useDispatch();
   let token = props.match.params.token;
   const { isAuthenticated } = props.auth;
   const { history } = props;
@@ -18,7 +19,9 @@ const ResetPassword = props => {
       <Card>
         <ChangePasswordForm
           action={password =>
-            changePassword(token, password).then(() => history.push("/login"))
+            dispatch(changePassword(token, password)).then(() =>
+              history.push("/login")
+            )
           }
         />
       </Card>

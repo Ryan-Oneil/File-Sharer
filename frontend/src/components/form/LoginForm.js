@@ -2,22 +2,24 @@ import React from "react";
 import { Field, Formik } from "formik";
 import { InputWithErrors } from "./index";
 import { Alert, Button } from "antd";
-import { loginUser } from "../../actions";
-import { connect } from "react-redux";
 import { getApiError } from "../../helpers";
 import { Link } from "react-router-dom";
 import UserOutlined from "@ant-design/icons/lib/icons/UserOutlined";
 import LockOutlined from "@ant-design/icons/lib/icons/LockOutlined";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../../reducers/authReducer";
 
-const LoginForm = props => {
+export default () => {
+  const dispatch = useDispatch();
+
   const onSubmit = (formValues, { setStatus }) => {
     const creds = {
       username: formValues.username.trim(),
       password: formValues.password.trim()
     };
-    return props.loginUser(creds).catch(error => {
-      setStatus(getApiError(error));
-    });
+    return dispatch(loginUser(creds)).catch(error =>
+      setStatus(getApiError(error))
+    );
   };
 
   return (
@@ -98,4 +100,3 @@ const validate = values => {
   }
   return errors;
 };
-export default connect(null, { loginUser })(LoginForm);

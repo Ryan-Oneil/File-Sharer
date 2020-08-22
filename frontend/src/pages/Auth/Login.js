@@ -2,10 +2,10 @@ import React from "react";
 import LoginForm from "../../components/form/LoginForm";
 import { Link } from "react-router-dom";
 import { Button, Card, Divider } from "antd";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 
-const Login = props => {
-  const { isAuthenticated } = props.auth;
+export default props => {
+  const { isAuthenticated } = useSelector(state => state.auth);
 
   if (isAuthenticated) {
     props.history.push("/dashboard");
@@ -22,7 +22,3 @@ const Login = props => {
     </div>
   );
 };
-const mapStateToProps = state => {
-  return { auth: state.auth };
-};
-export default connect(mapStateToProps)(Login);

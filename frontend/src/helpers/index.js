@@ -9,7 +9,7 @@ export const getApiError = error => {
 };
 
 export const displayBytesInReadableForm = bytes => {
-  if (bytes === 0) return "0 Bytes";
+  if (bytes === 0 || bytes < 0) return "0 Bytes";
 
   const k = 1024;
   const dm = 2 < 0 ? 0 : 2;

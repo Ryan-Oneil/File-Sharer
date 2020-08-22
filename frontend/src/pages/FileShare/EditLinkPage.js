@@ -14,35 +14,35 @@ import {
 import { displayBytesInReadableForm } from "../../helpers";
 import DownloadOutlined from "@ant-design/icons/lib/icons/DownloadOutlined";
 import { BASE_URL } from "../../apis/api";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import {
-  addFiles,
-  deleteFile,
-  deleteLink,
-  editLink,
-  getLinkDetails,
-  resetUploader
-} from "../../actions/fileshare";
 import { EditLinkForm } from "../../components/form/EditLinkForm";
 import FileAddOutlined from "@ant-design/icons/lib/icons/FileAddOutlined";
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
 import ConfirmButton from "../../components/ConfirmButton";
 import Uploader from "../../components/Uploader";
 import ListCard from "../../components/Stats/ListCard";
+import {
+  getLinkDetails,
+  deleteLink,
+  deleteFile,
+  addFilesToLink,
+  editLink
+} from "../../reducers/fileReducer";
 
-const EditLinkPage = props => {
+export default props => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
-  const { files } = props.fileSharer.linkUpload;
+  const [newFiles, setNewFiles] = useState([]);
+  const { files, links } = useSelector(state => state.fileSharer.entities);
   const { linkID } = props.match.params;
-  const { activeFiles } = props.fileSharer;
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    props.getLinkDetails(linkID).then(() => setLoadingData(false));
+    dispatch(getLinkDetails(linkID)).then(() => setLoadingData(false));
   }, []);
-  const link = activeFiles.find(link => link.id === linkID) || {
+  const link = links[linkID] || {
     title: "",
     files: [],
     size: 0,
@@ -50,21 +50,21 @@ const EditLinkPage = props => {
   };
 
   const deleteLinkAction = () => {
-    props.deleteLink(linkID);
+    dispatch(deleteLink(linkID));
     props.history.goBack();
   };
 
   const deleteFileAction = fileID => {
-    props.deleteFile(fileID, linkID);
+    dispatch(deleteFile(fileID, linkID));
   };
 
   const resetFiles = () => {
-    props.resetUploader();
+    setNewFiles([]);
   };
 
   const uploadNewFiles = () => {
     setUploading(true);
-    props.addFiles(files, linkID).then(() => {
+    dispatch(addFilesToLink(newFiles, linkID)).then(() => {
       resetFiles();
       setUploading(false);
       setShowUploadModal(false);
@@ -93,7 +93,7 @@ const EditLinkPage = props => {
 
             <Card style={{ marginTop: "2%" }} title={"Edit Link"}>
               <EditLinkForm
-                submitAction={props.editLink}
+                submitAction={(id, link) => dispatch(editLink(id, link))}
                 id={linkID}
                 link={link}
               />
@@ -104,7 +104,7 @@ const EditLinkPage = props => {
               title="Files"
               pagination
               size="small"
-              dataSource={link.files}
+              dataSource={link.files.map(id => files[id])}
               loading={loadingData}
               renderItem={item => (
                 <List.Item
@@ -179,20 +179,16 @@ const EditLinkPage = props => {
             setShowUploadModal(false);
           }}
         >
-          <Uploader />
+          <Uploader
+            addFile={file => setNewFiles(prevState => [...prevState, file])}
+            removeFile={file =>
+              setNewFiles(prevState =>
+                prevState.filter(prevFile => prevFile.uid !== file.uid)
+              )
+            }
+          />
         </Modal>
       )}
     </>
   );
 };
-const mapStateToProps = state => {
-  return { fileSharer: state.fileSharer, auth: state.auth };
-};
-export default connect(mapStateToProps, {
-  getLinkDetails,
-  deleteLink,
-  deleteFile,
-  addFiles,
-  editLink,
-  resetUploader
-})(EditLinkPage);

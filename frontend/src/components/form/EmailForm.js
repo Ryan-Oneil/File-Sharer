@@ -10,7 +10,11 @@ export default props => {
   const onSubmit = (formValues, { setStatus }) => {
     return props
       .action(formValues)
-      .then(response => setStatus({ msg: response.data, type: "success" }))
+      .then(response => {
+        if (response) {
+          setStatus({ msg: response.data, type: "success" });
+        }
+      })
       .catch(error => {
         setStatus({ msg: getApiError(error), type: "error" });
       });

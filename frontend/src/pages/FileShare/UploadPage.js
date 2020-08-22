@@ -1,23 +1,40 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, Button, Card, Col, List, Row } from "antd";
 import StatisticCard from "../../components/Stats/StatisticCard";
 import { displayBytesInReadableForm } from "../../helpers";
 import DeleteOutlined from "@ant-design/icons/lib/icons/DeleteOutlined";
 import Uploader from "../../components/Uploader";
-import { connect } from "react-redux";
-import { uploaderRemoveFile } from "../../actions/fileshare";
 import ShareLinkForm from "../../components/form/ShareLinkForm";
 
-const UploadPage = props => {
-  const { size, files } = props.fileSharer.linkUpload;
+export default () => {
+  const [files, setFiles] = useState([]);
+  const [size, setSize] = useState(0);
+
+  const removeFile = fileId => {
+    const oldFiles = [...files];
+
+    setFiles(oldFiles.filter(file => file.uid !== fileId));
+  };
+
+  useEffect(() => {
+    let size = 0;
+
+    files.forEach(file => (size += file.size));
+    setSize(size);
+  }, [files]);
+
   return (
     <>
       <Row gutter={[32, 32]} type="flex">
         <Col span={8}>
-          <ShareLinkForm />
+          <ShareLinkForm resetFiles={() => setFiles([])} files={files} />
         </Col>
         <Col span={16}>
-          <Uploader showUploadList={false} />
+          <Uploader
+            showUploadList={false}
+            removeFile={removeFile}
+            addFile={file => setFiles(prevState => [...prevState, file])}
+          />
         </Col>
       </Row>
       <Row gutter={[32, 32]} type="flex">
@@ -40,7 +57,7 @@ const UploadPage = props => {
                       shape="circle"
                       icon={<DeleteOutlined />}
                       onClick={() => {
-                        props.uploaderRemoveFile(item);
+                        removeFile(item.uid);
                       }}
                     />
                   ]}
@@ -61,8 +78,3 @@ const UploadPage = props => {
     </>
   );
 };
-const mapStateToProp = state => {
-  return { fileSharer: state.fileSharer };
-};
-
-export default connect(mapStateToProp, { uploaderRemoveFile })(UploadPage);

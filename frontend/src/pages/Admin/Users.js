@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, Table, Tooltip } from "antd";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import EditOutlined from "@ant-design/icons/lib/icons/EditOutlined";
-import { getUsers } from "../../actions/user";
 import { Link } from "react-router-dom";
+import { getAllUsers } from "../../reducers/adminReducer";
 
 const Users = props => {
+  const dispatch = useDispatch();
   const { users, totalUsers } = props.admin;
   const { match } = props;
   const [loading, setLoading] = useState(true);
@@ -18,7 +19,9 @@ const Users = props => {
     setLoading(true);
 
     //current is always reduced by 1 since backend starts page at 0 while frontend starts at 1
-    props.getUsers(current - 1, pageSize, sorter).then(() => setLoading(false));
+    dispatch(getAllUsers(current - 1, pageSize, sorter)).then(() =>
+      setLoading(false)
+    );
   };
 
   useEffect(() => {
@@ -91,6 +94,4 @@ const Users = props => {
 const mapStateToProps = state => {
   return { admin: state.admin };
 };
-export default connect(mapStateToProps, {
-  getUsers
-})(Users);
+export default connect(mapStateToProps)(Users);
