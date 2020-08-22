@@ -30,11 +30,17 @@ export const getAllUsers = (
     .catch(error => dispatch(setError(getApiError(error))));
 };
 
-//Update this to update stuff
 export const updateUser = user => dispatch => {
-  const userDetails = { email: user.email, password: user.password };
+  const userDetails = { email: user.userEmail, password: user.userPass };
 
-  return apiPutCall(`/user/${user.username}/details/update`, userDetails);
+  return apiPutCall(
+    `/user/${user.username}/details/update`,
+    userDetails
+  ).then(() =>
+    dispatch(
+      updateUserDetails({ name: user.username, email: userDetails.email })
+    )
+  );
 };
 
 const getUserDetailsBase = username => {
@@ -63,7 +69,7 @@ export const slice = createSlice({
   name: "admin",
   initialState: {
     totalUsed: 0,
-    users: [],
+    users: {},
     totalUsers: 0,
     fileShare: {
       totalViews: 0,
@@ -72,14 +78,6 @@ export const slice = createSlice({
       recentShared: []
     },
     user: {
-      account: {
-        name: "",
-        email: "",
-        role: "",
-        enabled: "",
-        quota: { used: 0, max: 0, ignoreQuota: false }
-      },
-      files: [],
       stats: { totalViews: 0, totalLinks: 0 }
     }
   },
@@ -91,14 +89,20 @@ export const slice = createSlice({
       state.totalUsed = action.payload;
     },
     getUsers(state, action) {
-      state.users = action.payload.users;
+      state.users = action.payload.users.reduce((accumulator, user) => {
+        accumulator[user.name] = user;
+        return accumulator;
+      }, {});
       state.totalUsers = action.payload.total;
     },
     getUserFileShareStats(state, action) {
       state.user.stats = action.payload;
     },
     getUserDetails(state, action) {
-      state.user.account = action.payload;
+      state.users[action.payload.name] = action.payload;
+    },
+    updateUserDetails(state, action) {
+      state.users[action.payload.name].email = action.payload.email;
     }
   }
 });
@@ -108,5 +112,6 @@ export const {
   getTotalUsedSpace,
   getUsers,
   getUserFileShareStats,
-  getUserDetails
+  getUserDetails,
+  updateUserDetails
 } = slice.actions;

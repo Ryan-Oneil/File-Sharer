@@ -81,9 +81,9 @@ const Users = props => {
   return (
     <Card>
       <Table
-        dataSource={users}
+        dataSource={Object.values(users)}
         columns={columns}
-        rowKey={user => user.username}
+        rowKey={user => user.id}
         pagination={pagination}
         loading={loading}
         onChange={handleTableChange}

@@ -18,7 +18,14 @@ export default props => {
   const { match } = props;
   const { user } = props.match.params;
   const adminUserState = useSelector(state => state.admin.user);
-  const { account } = adminUserState;
+  const { users } = useSelector(state => state.admin);
+  const account = users[user] || {
+    name: "",
+    email: "",
+    role: "",
+    enabled: "",
+    quota: { used: 0, max: 0, ignoreQuota: false }
+  };
   const { totalLinks, totalViews } = adminUserState.stats;
   const [loadingFileStats, setLoadingFileStats] = useState(true);
   const [loadingUserDetails, setLoadingUserDetails] = useState(true);
@@ -55,7 +62,7 @@ export default props => {
             <SharedLinkTable
               editPath={match.path}
               fetchData={(page, size, sorter) =>
-                getUserLinks(account.name, page, size, sorter)
+                getUserLinks(user, page, size, sorter)
               }
             />
           </TabPane>
