@@ -53,7 +53,7 @@ export default props => {
         <Tabs defaultActiveKey="1">
           <TabPane tab="Account Settings" key="1">
             <Row gutter={[32, 32]} type="flex">
-              <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+              <Col xs={24} sm={16} md={14} lg={14} xl={10}>
                 <EditUserForm user={account} loading={loadingUserDetails} />
               </Col>
             </Row>

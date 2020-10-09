@@ -74,5 +74,6 @@ public class Quota {
 
     public void decreaseUsed(long amount) {
         this.used -= amount;
+        this.used = Math.max(used - amount, 0);
     }
 }
