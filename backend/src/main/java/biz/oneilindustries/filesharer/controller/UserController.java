@@ -1,7 +1,5 @@
 package biz.oneilindustries.filesharer.controller;
 
-import static biz.oneilindustries.filesharer.AppConfig.FRONT_END_URL;
-
 import biz.oneilindustries.filesharer.dto.QuotaDTO;
 import biz.oneilindustries.filesharer.dto.UserDTO;
 import biz.oneilindustries.filesharer.entity.PasswordResetToken;
@@ -16,7 +14,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -38,7 +36,9 @@ public class UserController {
     private final ApplicationEventPublisher eventPublisher;
     private final EmailSender emailSender;
 
-    @Autowired
+    @Value("${server.frontEndUrl}")
+    private String FRONT_END_URL;
+
     public UserController(UserService userService, ApplicationEventPublisher eventPublisher, EmailSender emailSender) {
         this.userService = userService;
         this.eventPublisher = eventPublisher;
@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity registerUser(@RequestBody @Valid LoginForm loginForm, HttpServletRequest request) {
+    public ResponseEntity<String> registerUser(@RequestBody @Valid LoginForm loginForm, HttpServletRequest request) {
         User newUser = userService.registerUser(loginForm);
 
         eventPublisher.publishEvent(new OnRegistrationCompleteEvent
@@ -56,7 +56,7 @@ public class UserController {
     }
 
     @PostMapping("/registrationConfirm/{token}")
-    public ResponseEntity confirmRegistration(@PathVariable String token) {
+    public ResponseEntity<String> confirmRegistration(@PathVariable String token) {
         VerificationToken verificationToken = userService.validateVerificationToken(token);
 
         User user = verificationToken.getUsername();
@@ -70,7 +70,7 @@ public class UserController {
     }
 
     @PostMapping("/forgotPassword/{email}")
-    public ResponseEntity sendResetToken(@PathVariable String email) {
+    public ResponseEntity<String> sendResetToken(@PathVariable String email) {
         Optional<User> user = userService.getUserByEmail(email);
 
         if (!user.isPresent()) {
@@ -85,7 +85,7 @@ public class UserController {
     }
 
     @PostMapping("/newPassword/{token}")
-    public ResponseEntity setNewPassword(@PathVariable String token, @RequestBody UpdatedUser updatedUser) {
+    public ResponseEntity<String> setNewPassword(@PathVariable String token, @RequestBody UpdatedUser updatedUser) {
         PasswordResetToken passwordResetToken = userService.validatePasswordResetToken(token);
         Optional<User> user = Optional.ofNullable(passwordResetToken.getUsername());
 

@@ -1,7 +1,5 @@
 package biz.oneilindustries.filesharer.controller;
 
-import static biz.oneilindustries.filesharer.AppConfig.FRONT_END_URL;
-
 import biz.oneilindustries.filesharer.dto.FileDTO;
 import biz.oneilindustries.filesharer.dto.LinkDTO;
 import biz.oneilindustries.filesharer.entity.Link;
@@ -22,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.apache.commons.fileupload.FileUploadException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -43,6 +42,9 @@ public class FileSharingController {
     private final SystemFileService systemFileService;
     private final UserService userService;
     private final ShareLinkService linkService;
+
+    @Value("${server.frontEndUrl}")
+    private String FRONT_END_URL;
 
     public FileSharingController(SystemFileService systemFileService, UserService userService,
         ShareLinkService linkService) {

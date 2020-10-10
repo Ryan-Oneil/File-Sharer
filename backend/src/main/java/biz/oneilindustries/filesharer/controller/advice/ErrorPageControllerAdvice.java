@@ -25,7 +25,7 @@ public class ErrorPageControllerAdvice {
     }
 
     @ExceptionHandler(TooManyLoginAttempts.class)
-    public ResponseEntity tooManyLoginAttemptsException(TooManyLoginAttempts ex) {
+    public ResponseEntity tooManyLoginAttemptsException() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Too many login attempts");
     }
 

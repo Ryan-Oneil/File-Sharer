@@ -2,21 +2,12 @@ package biz.oneilindustries.filesharer.filecreater;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import javax.imageio.ImageIO;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FileHandler {
-
-    private static List<String> supportImageFormats;
-
-    static {
-        supportImageFormats = Arrays.asList(ImageIO.getWriterFormatNames());
-    }
 
     private FileHandler() {
     }
@@ -54,24 +45,5 @@ public class FileHandler {
             fileCount++;
         }
         return currentFile;
-    }
-
-    public static String getContentType(String originalFileName) {
-        String extensionType = getExtensionType(originalFileName);
-
-        if (extensionType.equalsIgnoreCase("jpg") || extensionType.equalsIgnoreCase("jpeg")) return "jpeg";
-
-        return extensionType;
-    }
-
-    public static boolean isImageFile(String extension) {
-
-        if (extension.contains(".")) extension = getExtensionType(extension);
-
-        return supportImageFormats.contains(extension);
-    }
-
-    public static boolean isVideoFile(String contentType) {
-        return contentType.startsWith("video");
     }
 }
