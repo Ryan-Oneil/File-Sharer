@@ -1,7 +1,5 @@
 package biz.oneilindustries.filesharer.service;
 
-import static biz.oneilindustries.filesharer.AppConfig.BASE_USER_DIRECTORY;
-import static biz.oneilindustries.filesharer.AppConfig.SHARED_LINK_DIRECTORY;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import biz.oneilindustries.filesharer.entity.Link;
@@ -22,12 +20,11 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@ExtendWith(SpringExtension.class)
+@SpringJUnitConfig
 public class ShareLinkServiceTest {
 
     @MockBean
@@ -36,18 +33,17 @@ public class ShareLinkServiceTest {
     private FileRepository fileRepository;
     @MockBean
     private LinkViewRepository viewRepository;
-
     private ShareLinkService service;
 
     private static final User testUser = new User("UnitTest", "test");
     private static List<File> testFiles;
-    private static final File testDirectory = new File(String.format(BASE_USER_DIRECTORY, testUser.getUsername()));
+    private static final File testDirectory = new File(String.format("F:/FileShare/%s", testUser.getUsername()));
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     @BeforeEach
     public void setUp() throws IOException, ParseException {
-        service = new ShareLinkService(linkRepository, fileRepository, viewRepository);
-        String testLocation = String.format(SHARED_LINK_DIRECTORY, testUser.getUsername());
+        service = new ShareLinkService(linkRepository, fileRepository, viewRepository, "F:/FileShare/%s/links/");
+        String testLocation = String.format("F:/FileShare/%s/links", testUser.getUsername());
 
         testFiles = new ArrayList<>();
         File parentDirectory = new File(testLocation + "/testLink/");
@@ -84,7 +80,6 @@ public class ShareLinkServiceTest {
         String expires = "2020-06-28T13:46:42Z";
         String title = "UnitTestTitle";
         Date expectedExpiry = format.parse(expires);
-
         Link generatedLink = service.generateShareLink(testUser, expires, title, testFiles);
 
         assertThat(generatedLink.getCreator().getUsername()).isEqualTo(testUser.getUsername());

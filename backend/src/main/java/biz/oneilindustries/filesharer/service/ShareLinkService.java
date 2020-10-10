@@ -1,7 +1,5 @@
 package biz.oneilindustries.filesharer.service;
 
-import static biz.oneilindustries.filesharer.AppConfig.SHARED_LINK_DIRECTORY;
-
 import biz.oneilindustries.RandomIDGen;
 import biz.oneilindustries.filesharer.dto.FileDTO;
 import biz.oneilindustries.filesharer.dto.LinkDTO;
@@ -30,6 +28,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -37,6 +36,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ShareLinkService {
 
+    private final String baseUserDirectory;
     private final LinkRepository linkRepository;
     private final FileRepository fileRepository;
     private final LinkViewRepository viewRepository;
@@ -44,10 +44,11 @@ public class ShareLinkService {
     private static final Logger logger = LogManager.getLogger(ShareLinkService.class);
     private static final int UUID_LENGTH = 16;
 
-    public ShareLinkService(LinkRepository linkRepository, FileRepository fileRepository, LinkViewRepository viewRepository) {
+    public ShareLinkService(LinkRepository linkRepository, FileRepository fileRepository, LinkViewRepository viewRepository, @Value("${server.baseDirectory}") String baseUserDirectory) {
         this.linkRepository = linkRepository;
         this.fileRepository = fileRepository;
         this.viewRepository = viewRepository;
+        this.baseUserDirectory = baseUserDirectory;
     }
 
     public Link generateShareLink(User user, String expires, String title, List<File> files) throws ParseException {
@@ -201,11 +202,11 @@ public class ShareLinkService {
     }
 
     public String getFileLocation(String user, String linkID, String fileName) {
-        return String.format(SHARED_LINK_DIRECTORY + "%s/%s", user, linkID, fileName);
+        return String.format(baseUserDirectory + "%s/%s", user, linkID, fileName);
     }
 
     public String getLinkDirectory(String user, String linkID) {
-        return String.format(SHARED_LINK_DIRECTORY + "%s", user, linkID);
+        return String.format(baseUserDirectory + "%s", user, linkID);
     }
 
     public List<Link> getUserLinks(String user) {
