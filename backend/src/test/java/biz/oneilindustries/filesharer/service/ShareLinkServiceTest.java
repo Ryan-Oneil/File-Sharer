@@ -2,6 +2,7 @@ package biz.oneilindustries.filesharer.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import biz.oneilindustries.filesharer.dto.FileDTO;
 import biz.oneilindustries.filesharer.entity.Link;
 import biz.oneilindustries.filesharer.entity.SharedFile;
 import biz.oneilindustries.filesharer.entity.User;
@@ -161,11 +162,10 @@ public class ShareLinkServiceTest {
     }
 
     @Test
-    public void deleteLocalFile() {
-        File testFile = testFiles.get(0);
+    public void addFilesToLinkTest() {
+        List<FileDTO> newFiles = service.addFilesToLink("testLink", testFiles);
 
-        service.deleteLocalFile(testFile.getAbsolutePath());
-
-        assertThat(testFile.exists()).isFalse();
+        assertThat(newFiles.size()).isEqualTo(1);
+        assertThat(newFiles.get(0).getName()).isEqualTo(testFiles.get(0).getName());
     }
 }
